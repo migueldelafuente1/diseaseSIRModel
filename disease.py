@@ -49,13 +49,14 @@ class DiseaseSimulation(object):
     
     def __init__(self,
                  t_step  = 0.01, # days
-                 days    = 100,  # days
+                 days    = 200,  # days
                  N_population    = 200000, # persons
                  contagious_rate = 0.0,    # persons/day
                  recovery_rate   = 0.0):   # person/day (= time to recovery**-1)
         """ 
         Args:
-        :contagious_rate = contacts/day * probability of transmission by contact
+        :contagious_rate = contacts/(day * person) *
+            * transmission probability by contact
         :recovery_rate = 1 / days to recovery (period of infection)
         """
         
@@ -73,8 +74,8 @@ class DiseaseSimulation(object):
         self.d_infected    = []
         self.d_recovered   = []
         
-        self.CONT_RATE = round(contagious_rate/N_population, 4)
-        self.RECO_RATE = round(recovery_rate, 4)
+        self.CONT_RATE = contagious_rate/N_population
+        self.RECO_RATE = recovery_rate
         
         self.max_infected = None
         self.__defineDerivates()
@@ -135,18 +136,19 @@ class DiseaseSimulation(object):
         for var_name, eq in self._derivates.items():
             
             new[var_name] = getattr(self, var_name)[-1]
-            step = (self.t_step**2) * eq(*self.getVariableTuple())
+            step = (self.t_step) * eq(*self.getVariableTuple())
             # Record the the difference
             getattr(self, self.DERIVATES_1st[var_name]).append(step)
             
             new[var_name] += step
-            #new[var_name] = max(min(self.N_population, new[var_name]), 0.01)
+            new[var_name] = max(min(self.N_population, new[var_name]), 0.01)
             
             getattr(self, var_name).append(new[var_name])
             # Define the maximum
             if ((var_name == self.INFECTED) 
                 and (step < 0) and (not self.max_infected)):
                 self.max_infected = (round(self.time[i],2), round(new[var_name]))
+        
     
     def __call__(self):
         """ run the execution for the object inputs """
@@ -178,7 +180,8 @@ class DiseaseSimulation(object):
                     label=_var)
         
         ax.set_title("Time evolution of Disease\n", loc='center', fontsize=18)
-        ax.set_title(f"CR: {self.CONT_RATE} RR: {self.RECO_RATE} [persons/day] Max={self.max_infected}", 
+        ax.set_title(f"CR={round(self.CONT_RATE*self.N_population, 4)}[1/pd] 1/RR={round(self.RECO_RATE**(-1), 2)} \
+[d] Max={self.max_infected}[(d, p)]", 
                      loc='left', fontsize=13, color='grey')
         ax.set_xlabel("time [days]")
         ax.set_ylabel("People")
@@ -210,7 +213,7 @@ detected_list = [(0,  2),    (16, 31),
                  (30, 4231), (31, 5753)]
 
 i_rate, inf_y_abs = getContagiousRate(detected_list)
-t = 33
+t = 35
 print(f"IR: {i_rate}  abscI: {inf_y_abs}")
 _infected = round(inf_y_abs*np.exp(i_rate*t))
 print(f"{(t_0+timedelta(days=t)).date()} : infected= {_infected}")
@@ -223,7 +226,7 @@ if __name__ == '__main__':
     ## Let be the parameters: (contagious_rate, recovery_rate) [people/day]
     params = [(0.265, 0.05), (2.5, 10.)]
     params_r_const = [(0.1 + 0.3*r, 20.) for r in range(5)]
-    params_c_const = [(0.25, 2.1 + 4.*c) for c in range(0, 6, 2)]
+    params_c_const = [(1.25, 1./(2.1 + 4.*c)) for c in range(0, 6)]
     params_t_var   = [(0.05, 6.0, 0.01 + 0.01*t) for t in range(0, 10, 2)]
     
     print("CR\tRR\tmax_infected")
