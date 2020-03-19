@@ -75,7 +75,8 @@ spain_detected = [
                   (28, 6391, 196),
                   (29, 7988, 294),
                   (30, 9942, 342),
-                  (31, 11826, 533)]
+                  (31, 11826, 533),
+                  (32, 14769, 638)]
 
 italy_detected = [
 #                  (0, 3, 0),
@@ -98,7 +99,8 @@ italy_detected = [
                   (28, 21157, 1441),
                   (29, 24747, 1809),
                   (30, 27980, 2158),
-                  (31, 31506, 2503)]
+                  (31, 31506, 2503),
+                  (32, 35713, 2978)]
 
 
 def graph(data_list, A_i, B_i, A_d, B_d, t_max, name):
@@ -122,7 +124,7 @@ def graph(data_list, A_i, B_i, A_d, B_d, t_max, name):
 
 if __name__ == '__main__':
     
-    t_max = 32
+    t_max = 33
     dicts_ = {'spain': spain_detected, 
               'italy':italy_detected}
     for name, detected_list in dicts_.items():
@@ -132,7 +134,10 @@ if __name__ == '__main__':
         print(f"Infect Rate: {i_rate:8.4f}   abscI: {i_y_abs:8.4f}")
         print(f"Death  Rate: {d_rate:8.4f}   abscD: {d_y_abs:8.4f}")
         print(f"Mortality:  {mort:8.4f} +/- {mort_std:6.4f}")
+        
         _infected = round(i_y_abs * (10**(i_rate*t_max)))
-        print(f"\t{(t_0+timedelta(days=t_max)).date()} : infected= {_infected}\n")
+        _deaths   = round(d_y_abs * (10**(d_rate*t_max)))
+        print(f"\t{(t_0+timedelta(days=t_max)).date()} : infected= {_infected}")
+        print(f"\t{(t_0+timedelta(days=t_max)).date()} : deaad= {_deaths}\n")
         
         graph(detected_list, i_rate, i_y_abs, d_rate, d_y_abs, t_max, name)
