@@ -46,6 +46,7 @@ class DiseaseSimulation(object):
     
     GROUPS_OF_RECOVERY = 1
     INFECTEDS_COULD_DIE = False
+    STOP_WHEN_MAX_INFECTED_ACHIEVED = False
     
     def __init__(self,
                  t_step  = 0.01, # days
@@ -69,16 +70,20 @@ class DiseaseSimulation(object):
         self.susceptible = [N_population]
         self.infected    = [1]
         self.recovered   = [0]
-        
-        self.d_susceptible = []
-        self.d_infected    = []
-        self.d_recovered   = []
+        self._setCalculationVars()
         
         self.CONT_RATE = contagious_rate/N_population
         self.RECO_RATE = recovery_rate
         
         self.max_infected = None
         self.__defineDerivates()
+    
+    def _setCalculationVars(self):
+        """ Setting attributes as lists"""
+        for _, deriv in self.DERIVATES_1st.items():
+            setattr(self, deriv, [])
+        for _, err in self.ERROR_2ord.items():
+            setattr(self, err, [])
     
     def __repr__(self):
 
@@ -114,6 +119,9 @@ class DiseaseSimulation(object):
     DERIVATES_1st = {SUSCEPTIBLE : 'd_susceptible',
                      INFECTED    : 'd_infected',
                      RECOVERED   : 'd_recovered'}
+    ERROR_2ord    = {SUSCEPTIBLE : 'e_susceptible',
+                     INFECTED    : 'e_infected',
+                     RECOVERED   : 'e_recovered'}
     
     def getVariableTuple(self, i=-1):
         return tuple([getattr(self, var)[i] for var in self.VARS])
@@ -130,15 +138,21 @@ class DiseaseSimulation(object):
         self._derivates[self.INFECTED] = lambda s,i,r: (self.CONT_RATE*s*i) - (self.RECO_RATE*i)
         self._derivates[self.RECOVERED]= lambda s,i,r: self.RECO_RATE*i
     
-    
+    def __eulerError(self, var_name, deriv):
+        _error = 0.5 * (self.t_step**2) * deriv
+        _lastErr = getattr(self, self.ERROR_2ord[var_name])[-1]
+        getattr(self, self.ERROR_2ord[var_name]).append(_error + _lastErr)
+        
     def __euler(self, i):
         new = {}
         for var_name, eq in self._derivates.items():
             
             new[var_name] = getattr(self, var_name)[-1]
             step = (self.t_step) * eq(*self.getVariableTuple())
+            
             # Record the the difference
             getattr(self, self.DERIVATES_1st[var_name]).append(step)
+#             self.__eulerError(var_name, step)
             
             new[var_name] += step
             new[var_name] = max(min(self.N_population, new[var_name]), 0.01)
@@ -148,6 +162,8 @@ class DiseaseSimulation(object):
             if ((var_name == self.INFECTED) 
                 and (step < 0) and (not self.max_infected)):
                 self.max_infected = (round(self.time[i],2), round(new[var_name]))
+                if self.STOP_WHEN_MAX_INFECTED_ACHIEVED:
+                    break
         
     
     def __call__(self):
@@ -162,7 +178,12 @@ class DiseaseSimulation(object):
         cls.GRAPH_LABEL += 1
     def getDetails(self):
         print(self)
-        
+    
+    def stopWhenMaxInfectedReached(self, stop=True):
+        """ Call this method to set stop the execution when the maximum of 
+        infected is reached. Use it before the execution. """
+        self.STOP_WHEN_MAX_INFECTED_ACHIEVED = stop
+    
     def graph(self, details=True, logY=False):
         """ Graph the results using matplotlib, also prints the object inputs"""
         if details:

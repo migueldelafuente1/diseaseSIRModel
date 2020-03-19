@@ -64,49 +64,53 @@ spain_detected = [
 #                   (14, 58, 0),
 #                   (16, 120, 0),
 #                  (17, 165, 1),
-                  (19, 282, 3),
-                  (21, 525, 10),
-                  (22, 674, 17),
-                  (23, 1231, 30),
-                  (24, 1695, 36),
-                  (25, 2277, 55),
-                  (26, 3146, 86),
-                  (27, 5232, 133),
+#                  (19, 282, 3),
+#                  (21, 525, 10),
+#                  (22, 674, 17),
+#                  (23, 1231, 30),
+#                  (24, 1695, 36),
+#                  (25, 2277, 55),
+#                  (26, 3146, 86),
+#                  (27, 5232, 133),
                   (28, 6391, 196),
                   (29, 7988, 294),
                   (30, 9942, 342),
-                  (31, 11826, 533)]
+                  (31, 11826, 533),
+                  (32, 14769, 638),
+                  (33, 18077, 831)]
 
 italy_detected = [
 #                  (0, 3, 0),
 #                  (6, 21, 1),
 #                  (9, 229, 7),
-                  (11, 470, 12),
-                  (13, 889, 21),
-                  (15, 1701, 41),
-                  (17, 2502, 79),
-                  (18, 3089, 107),
-                  (19, 3858, 148),
-                  (20, 4636, 197),
-                  (21, 5883, 233),
-                  (22, 7375, 366),
-                  (23, 9172, 463),
-                  (24, 10149, 631),
-                  (25, 12462, 827),
+#                  (11, 470, 12),
+#                  (13, 889, 21),
+#                  (15, 1701, 41),
+#                  (17, 2502, 79),
+#                  (18, 3089, 107),
+#                  (19, 3858, 148),
+#                  (20, 4636, 197),
+#                  (21, 5883, 233),
+#                  (22, 7375, 366),
+#                  (23, 9172, 463),
+#                  (24, 10149, 631),
+#                  (25, 12462, 827),
                   (26, 15113, 1016),
                   (27, 17660, 1266),
                   (28, 21157, 1441),
                   (29, 24747, 1809),
                   (30, 27980, 2158),
-                  (31, 31506, 2503)]
+                  (31, 31506, 2503),
+                  (32, 35713, 2978),
+                  (33, 41035, 3405)]
 
 
 def graph(data_list, A_i, B_i, A_d, B_d, t_max, name):
     
     t, infected, dead = zip(*data_list)
     fig, ax = plt.subplots()
-    ax.plot(t, infected, 'r-',label=f'{name} infected')
-    ax.plot(t, dead, 'k-',label=f'{name} dead')
+    ax.plot(t, infected, 'r^-',label=f'{name} infected')
+    ax.plot(t, dead, 'kv-',label=f'{name} dead')
     
     x_i, y_i = zip(*[(t, B_i* (10**(A_i*t)))
                      for t in np.arange(10, t_max, 0.01)])
@@ -115,14 +119,15 @@ def graph(data_list, A_i, B_i, A_d, B_d, t_max, name):
     ax.plot(x_i, y_i, 'r--',label=f'{name} infected')
     ax.plot(x_d, y_d, 'k--',label=f'{name} dead')
     ax.legend()
-    ax.semilogy()
+    ax.grid()
+#    ax.semilogy()
     ax.set_xlabel('time (days)')
     
     
 
 if __name__ == '__main__':
     
-    t_max = 32
+    t_max = 34
     dicts_ = {'spain': spain_detected, 
               'italy':italy_detected}
     for name, detected_list in dicts_.items():
@@ -132,7 +137,10 @@ if __name__ == '__main__':
         print(f"Infect Rate: {i_rate:8.4f}   abscI: {i_y_abs:8.4f}")
         print(f"Death  Rate: {d_rate:8.4f}   abscD: {d_y_abs:8.4f}")
         print(f"Mortality:  {mort:8.4f} +/- {mort_std:6.4f}")
+        
         _infected = round(i_y_abs * (10**(i_rate*t_max)))
-        print(f"\t{(t_0+timedelta(days=t_max)).date()} : infected= {_infected}\n")
+        _deaths   = round(d_y_abs * (10**(d_rate*t_max)))
+        print(f"\t{(t_0+timedelta(days=t_max)).date()} : infected= {_infected}")
+        print(f"\t{(t_0+timedelta(days=t_max)).date()} : deaad= {_deaths}\n")
         
         graph(detected_list, i_rate, i_y_abs, d_rate, d_y_abs, t_max, name)
