@@ -1,15 +1,15 @@
-# diseaseModel
+# disease Model
 Model of infection based on SIR model, given by this EDO system:
 	
 	ds/dt = -CONT_RATE*s*i/N_population
 	di/dt = (self.CONT_RATE*s*i/N_population) - (self.RECO_RATE*i)
 	dr/dt = self.RECO_RATE*i
 
-Where `s` stands for _susceptibe_, `i` for _infected_ and `r` for _recovered_, `CONT_RATE` or __contagious rate__ is the average number of contacts between people for a person per day times the probability of infection per contact (needs to be normalized to the total population). The __recovery rate__ (`RECO_RATE`) here is the inverse average time to overcome the disease and stop infecting others (in other words, the factor for the number of recoveries per day).
+Where `s` stands for _susceptibe_, `i` for _infected_ and `r` for _recovered_. `CONT_RATE` or __contagious rate__ is the average number of contacts between people for a person per day times the probability of infection per contact (needs to be normalized to the total population). The __recovery rate__ (`RECO_RATE`) here is the inverse average time to overcome the disease and stop infecting others (in other words, the factor for the number of recoveries per day).
 
 The model could also be extended to take into account different rates of recovery or contagious, death according to mortality or other dependencies.
 
-#Requirements:
+# Requirements:
 
 python `3.6` or newer, `matplotlib` and `numpy`
 
