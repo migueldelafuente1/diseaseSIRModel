@@ -128,6 +128,7 @@ def graph(data_list, A_i, B_i, A_d, B_d, t_max, name):
 if __name__ == '__main__':
     
     t_max = 34
+    
     dicts_ = {'spain': spain_detected, 
               'italy':italy_detected}
     for name, detected_list in dicts_.items():
