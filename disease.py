@@ -95,8 +95,8 @@ class DiseaseSimulation(object):
        days:     \t{self.days}\t [days]
        N_population:\t{self.N_population}\t [persons]
        
-       contagious rate:\t{self.CONT_RATE} [persons/day]
-       recovery rate:  \t{self.RECO_RATE} [persons/day]
+       contagious rate:\t{self.CONT_RATE} [1/ persons day]
+       recovery rate:  \t{self.RECO_RATE} [1/ days]
        
        Considering People Die: {self.INFECTEDS_COULD_DIE}
        Considering [{self.GROUPS_OF_RECOVERY}] groups of recovey

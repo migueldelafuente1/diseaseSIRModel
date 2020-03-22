@@ -7,12 +7,19 @@ from disease import DiseaseSimulation
 
 def stepOptimizer(h_max, tolerance=0.2, **diseaseKwargs):
     """ 
-    This function iterates to find the """
+    This function iterates to find a value of the step for which the SIR simulation
+    converges under a certain tolerance. The steps are divided by 2 in each 
+    iteration (for a maximum of h_max/2^-6).
+    Args:
+    :h_max first step value.
+    :tolerance (=0.2 by default), tolerance ratio on step (1.0 for 100%).
+    :diseaseKwargs, are the parameters for the DiseaseSimulation.
+    """
 #     tol_ = 1 - tolerance
     max_vals_prev = (0,0)
     max_values = {}
     optimiced = False
-    for i in range(6):
+    for i in range(7):
         h = h_max / (2**(i))
         
         ds_h = DiseaseSimulation(t_step= h, **diseaseKwargs)
