@@ -88,7 +88,8 @@ spain_detected = [
                   (34, 21571, 1093),
                   (35, 25496, 1381),
                   (36, 28768, 1772),
-                  (37, 35136, 2311)
+                  (37, 35136, 2311),
+                  (38, 42058, 2991)
                   ]
 
 italy_detected = [
@@ -118,7 +119,8 @@ italy_detected = [
                   (34, 47021, 4032),
                   (35, 53578, 4825), 
                   (36, 59138, 5476),
-                  (37, 63927, 6077)
+                  (37, 63927, 6077),
+                  (38, 69176, 6820)
                   ]
 
 
@@ -151,8 +153,8 @@ if __name__ == '__main__':
     # =========================================================================
     
     date_min = datetime(2020, 3, 17)        # lower bound of data range
-    date_max = datetime(2020, 3, 23)        # upper bound of data range
-    date_prediction = datetime(2020, 3, 24) # prediction
+    date_max = datetime(2020, 3, 25)        # upper bound of data range
+    date_prediction = datetime(2020, 3, 25) # prediction
     
     # =========================================================================
     
@@ -176,7 +178,6 @@ if __name__ == '__main__':
         print(f"{name} -> i_min[{i_min}]  i_max[{i_max}]")
         dicts_[name] = detected_list[max(0, i_min) : min(i_max, len(detected_list))]
 
-    print(dicts_)
     for name, detected_list in dicts_.items():
         print(name.upper()
                 +"   data from [{}] to [{}]".format(
