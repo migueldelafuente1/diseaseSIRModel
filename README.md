@@ -2,10 +2,11 @@
 Model of infection based on SIR model, given by this EDO system:
 	
 	ds/dt = -CONT_RATE*s*i/N_population
-	di/dt = (self.CONT_RATE*s*i/N_population) - (self.RECO_RATE*i)
-	dr/dt = self.RECO_RATE*i
+	di/dt = (CONT_RATE*s*i/N_population) - (RECO_RATE*i) - (MORTALITY*i)
+	dr/dt = RECO_RATE*i
+	dd/dt = MORTALITY*i
 
-Where `s` stands for _susceptibe_, `i` for _infected_ and `r` for _recovered_. `CONT_RATE` or __contagious rate__ is the average number of contacts between people for a person per day times the probability of infection per contact (needs to be normalized to the total population). The __recovery rate__ (`RECO_RATE`) here is the inverse average time to overcome the disease and stop infecting others (in other words, the factor for the number of recoveries per day).
+Where `s` stands for _susceptibe_, `i` for _infected_, `r` for _recovered_ and `d` for _dead_. `CONT_RATE` or __contagious rate__ is the average number of contacts between people for a person per day times the probability of infection per contact (needs to be normalized to the total population). The __recovery rate__ (`RECO_RATE`) here is the inverse average time to overcome the disease and stop infecting others (in other words, the factor for the number of recoveries per day).
 
 The model could also be extended to take into account different rates of recovery or contagious, death according to mortality or other dependencies.
 
@@ -66,9 +67,12 @@ The prediction depends on the date range selected, notice that my data for Febru
 ** _stepOptimizer_ find the step necessary for the Euler-Method iteration to be in a relative tolerance range when the time step is split.
 
 This function iterates to find a value of the step for which the SIR simulation converges under a certain tolerance. The steps are divided by 2 in each iteration (for a maximum of h_max/2^-6).
-    | Argument | type | Description |
-    | __h_max__ | double | first step value. in days|
-    | __tolerance__ | double |(=0.2 by default), tolerance ratio on step (1.0 for 100%).|
-    | __diseaseKwargs__ |Dictionary | The parameters for the DiseaseSimulation. |
+
+| Argument | type | Description |
+| --- | --- | --- |
+| __h_max__ | double | first step value. in days|
+| __tolerance__ | double |(=0.2 by default), tolerance ratio on step (1.0 for 100%).|
+| __diseaseKwargs__ |Dictionary | The parameters for the DiseaseSimulation. |
+
 ** _modelOptimizerFromData_
 * Run disease model and optimizers from **main** 

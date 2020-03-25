@@ -146,7 +146,7 @@ class DiseaseSimulation(object):
         
         self._derivates[self.SUSCEPTIBLE]= lambda s,i,r,d: -self.CONT_RATE*s*i
         self._derivates[self.INFECTED]   = lambda s,i,r,d: (self.CONT_RATE*s*i)\
-             - (self.RECO_RATE*i) - (self.MORTALITY*i)
+             - ((self.RECO_RATE + self.MORTALITY)*i)
             
         self._derivates[self.RECOVERED]  = lambda s,i,r,d: self.RECO_RATE*i
         self._derivates[self.DEAD]       = lambda s,i,r,d: self.MORTALITY*i
