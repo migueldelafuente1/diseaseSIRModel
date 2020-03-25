@@ -58,7 +58,7 @@ The prediction depends on the date range selected, notice that my data for Febru
 | --- | --- | --- | --- |
 | t_step |  = 0.01 | days | Step for numeric method, optimize it with _optimizers.stepOptimizer_ tool. |
 | days  |   = 200   | days |  |
-| N_population | = 200000 | persons |  |
+| N_population | = 2e+5 | persons |  |
 | contagious_rate | = 0.0 | 1/ day * persons | average number of contacts between people for a person per day times the probability of infection per contact |
 | recovery_rate | = 0.0 | 1/ day | inverse average time to overcome the disease and stop infecting others |
 | mortality | =0.0 |  | linear factor proportional to the infected |

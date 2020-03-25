@@ -48,6 +48,13 @@ class DiseaseSimulation(object):
     STOP_WHEN_MAX_INFECTED_ACHIEVED = False
     TOP_N = 1000000
     
+    # Initial Values.
+    DAY_0 = 0
+    INITIALIZERS = {'infected_0'  : 1,
+                    'dead_0'      : 0,
+                    'recovered_0' : 0
+                    }
+    
     def __init__(self,
                  t_step  = 0.01, # days
                  days    = 200,  # days
@@ -68,11 +75,11 @@ class DiseaseSimulation(object):
         self.N_steps = int(days / t_step)
         self.N_population = N_population
         
-        self.time = np.arange(.0, days, t_step)
-        self.susceptible = [N_population]
-        self.infected    = [1]
-        self.recovered   = [0]
-        self.dead        = [0]
+        self.time = None
+        self.susceptible = [N_population - sum(self.INITIALIZERS.values())]
+        self.infected    = [self.INITIALIZERS['infected_0']]
+        self.recovered   = [self.INITIALIZERS['recovered_0']]
+        self.dead        = [self.INITIALIZERS['dead_0']]
         self._setCalculationVars()
         
         self.CONT_RATE = contagious_rate/N_population
@@ -83,13 +90,18 @@ class DiseaseSimulation(object):
         self.max_infected = None
         self.__defineDerivates()
         
-        
     def _setCalculationVars(self):
         """ Setting attributes as lists"""
         for _, deriv in self.DERIVATES_1st.items():
             setattr(self, deriv, [])
-        for _, err in self.ERROR_2ord.items():
-            setattr(self, err, [])
+    
+    @classmethod
+    def setInitializers(cls, day_0=0, infected_0=1, dead_0=0, recovered_0=0):
+        """ modify any of the initial values of the model, also the starting day"""
+        cls.DAY_0 = day_0
+        cls.INITIALIZERS = {'infected_0'  : infected_0,
+                            'dead_0'      : dead_0,
+                            'recovered_0' : recovered_0}
     
     def __repr__(self):
 
@@ -128,10 +140,6 @@ class DiseaseSimulation(object):
                      INFECTED    : 'd_infected',
                      RECOVERED   : 'd_recovered',
                      DEAD        : 'd_dead'}
-    ERROR_2ord    = {SUSCEPTIBLE : 'e_susceptible',
-                     INFECTED    : 'e_infected',
-                     RECOVERED   : 'e_recovered',
-                     DEAD        : 'e_dead'}
     
     def getVariableTuple(self, i=-1):
         return tuple([getattr(self, var)[i] for var in self.VARS])
@@ -150,11 +158,6 @@ class DiseaseSimulation(object):
             
         self._derivates[self.RECOVERED]  = lambda s,i,r,d: self.RECO_RATE*i
         self._derivates[self.DEAD]       = lambda s,i,r,d: self.MORTALITY*i
-    
-    def __eulerError(self, var_name, deriv):
-        _error = 0.5 * (self.t_step**2) * deriv
-        _lastErr = getattr(self, self.ERROR_2ord[var_name])[-1]
-        getattr(self, self.ERROR_2ord[var_name]).append(_error + _lastErr)
         
     def __euler(self, i):
         new = {}
@@ -165,7 +168,6 @@ class DiseaseSimulation(object):
             
             # Record the the difference
             getattr(self, self.DERIVATES_1st[var_name]).append(step)
-#             self.__eulerError(var_name, step)
             
             new[var_name] += step
             new[var_name] = max(min(self.N_population, new[var_name]), 0.01)
@@ -174,20 +176,20 @@ class DiseaseSimulation(object):
             # Define the maximum
             if (var_name == self.INFECTED):
                 if (not self.max_infected):
-                    if (step < 0) and (self.infected[-1] > 1):
-                        self.max_infected = (round(self.time[i],2),
+                    if (step < 0) and (self.infected[-1] > self.INITIALIZERS['infected_0']):
+                        self.max_infected = (round(self.t_step * i, 2),
                                              round(new[var_name]))
                         if self.STOP_WHEN_MAX_INFECTED_ACHIEVED:
                             print("STOPPED IN MAX_INFECTED")
                             self._converged = True
-                            break
+                            
                 else:
                     # If there is less than a person (after reaching the maximum
                     # of infections), the disease has been eradicated.
                     if (step < 0) and (getattr(self, self.INFECTED)[-1] < 1):
                         print("CONVERGENCE ACHIEVED [step {}]".format(i))
                         self._converged = True
-                        break
+                        
     
     def __call__(self):
         """ run the execution for the object inputs """
@@ -196,7 +198,10 @@ class DiseaseSimulation(object):
         while not self._converged:
             print(f"Iter {iterations}")
             for i in range(ini_step, (iterations * self.N_steps)-1):
-                if self._converged: break
+                if self._converged:
+                    self.time = np.arange(self.DAY_0, 
+                                          (i+1)*self.t_step, self.t_step)
+                    break
                 self.__euler(i)
             if i >= self.TOP_N:
                 print("WARNING: MAX ITERATIONS reached, Convergence NOT ACHIEVED")

@@ -14,6 +14,9 @@ def stepOptimizer(h_max, tolerance=0.2, **diseaseKwargs):
     :h_max first step value.
     :tolerance (=0.2 by default), tolerance ratio on step (1.0 for 100%).
     :diseaseKwargs, are the parameters for the DiseaseSimulation.
+    
+    Return:
+    :h optimized or not.
     """
 #     tol_ = 1 - tolerance
     max_vals_prev = (0,0)
@@ -32,8 +35,6 @@ def stepOptimizer(h_max, tolerance=0.2, **diseaseKwargs):
                   '\t i:', round(abs(max_vals[1]-max_vals_prev[1])/max_vals[1],4))
         if ((abs(max_vals[0]-max_vals_prev[0])/max_vals[0] > tolerance) or
             (abs(max_vals[1]-max_vals_prev[1])/max_vals[1] > tolerance)):
-#             print('t:', round(abs(max_vals[0]-max_vals_prev[0])/max_vals[0], 4),
-#                   '\t i:', round(abs(max_vals[1]-max_vals_prev[1])/max_vals[1],4))
             max_vals_prev = max_vals
         else:
             if i==0:
@@ -44,13 +45,34 @@ def stepOptimizer(h_max, tolerance=0.2, **diseaseKwargs):
             for h, max in max_values.items():
                 print(f"max(h={h:6.6f}) = t:{max[0]:8.2f}  max_infected: {max[1]:8.1f}")
             optimiced = True
+            #Return optimized step
+            return h
             break
     
     if not optimiced:
         print("WARNING: Method has not reach the [{}]% tolerance criteria."
               .format(100*tolerance))
-    return max_values
-                    
-def modelOptimizerFromData():
-    pass
+    
+    return h
+    #return max_values
+
+
+#===============================================================================
+#     MODEL PARAMETER FITTER
+#===============================================================================
+def modelOptimizerFromData(N_Population, parameters0, data, h_max=0.01, day0=0):
+    """From a set of data, find the best parameters. Optimize h in each step
+    Args:
+    :h_max = 0.01
+    :parameters0 <dict> ={CONTAGIOUS_RATE, RECOVERY_RATE, MORTALITY}
+    :data <list of tuples> = [(day, infected, recovered, dead)]
+    
+    Return:
+    <tuple> The most upgraded parameter sets and time step achieved"""
+    
+    t, infc, reco, dead = zip(data)
+    
+
+    
+    
     
