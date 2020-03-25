@@ -43,17 +43,19 @@ class DiseaseSimulation(object):
     # =========================================================================
     #   DATA INPUT
     # =========================================================================
-    
     GROUPS_OF_RECOVERY = 1
     INFECTEDS_COULD_DIE = False
     STOP_WHEN_MAX_INFECTED_ACHIEVED = False
+    TOP_N = 1000000
     
     def __init__(self,
                  t_step  = 0.01, # days
                  days    = 200,  # days
                  N_population    = 200000, # persons
                  contagious_rate = 0.0,    # persons/day
-                 recovery_rate   = 0.0):   # person/day (= time to recovery**-1)
+                 recovery_rate   = 0.0,    # person/day (= time to recovery**-1)
+                 mortality_rate  = 0.0     # average mortality for the infected
+                 ):
         """ 
         Args:
         :contagious_rate = contacts/(day * person) *
@@ -70,14 +72,18 @@ class DiseaseSimulation(object):
         self.susceptible = [N_population]
         self.infected    = [1]
         self.recovered   = [0]
+        self.dead        = [0]
         self._setCalculationVars()
         
         self.CONT_RATE = contagious_rate/N_population
         self.RECO_RATE = recovery_rate
+        self.MORTALITY = mortality_rate
+        self.INFECTEDS_COULD_DIE = mortality_rate > 0.0 
         
         self.max_infected = None
         self.__defineDerivates()
-    
+        
+        
     def _setCalculationVars(self):
         """ Setting attributes as lists"""
         for _, deriv in self.DERIVATES_1st.items():
@@ -109,19 +115,23 @@ class DiseaseSimulation(object):
     SUSCEPTIBLE = 'susceptible'
     INFECTED    = 'infected'
     RECOVERED   = 'recovered'
+    DEAD  = 'dead'
     
-    VARS = [SUSCEPTIBLE, INFECTED, RECOVERED]
+    VARS = [SUSCEPTIBLE, INFECTED, RECOVERED, DEAD]
     
     VAR_COLORS= {SUSCEPTIBLE: 'b', 
                  INFECTED   : 'r',
-                 RECOVERED  : 'g'}
+                 RECOVERED  : 'g',
+                 DEAD       : 'k'}
     
     DERIVATES_1st = {SUSCEPTIBLE : 'd_susceptible',
                      INFECTED    : 'd_infected',
-                     RECOVERED   : 'd_recovered'}
+                     RECOVERED   : 'd_recovered',
+                     DEAD        : 'd_dead'}
     ERROR_2ord    = {SUSCEPTIBLE : 'e_susceptible',
                      INFECTED    : 'e_infected',
-                     RECOVERED   : 'e_recovered'}
+                     RECOVERED   : 'e_recovered',
+                     DEAD        : 'e_dead'}
     
     def getVariableTuple(self, i=-1):
         return tuple([getattr(self, var)[i] for var in self.VARS])
@@ -134,9 +144,12 @@ class DiseaseSimulation(object):
         
         self._derivates = {}
         
-        self._derivates[self.SUSCEPTIBLE]= lambda s,i,r: -self.CONT_RATE*s*i
-        self._derivates[self.INFECTED] = lambda s,i,r: (self.CONT_RATE*s*i) - (self.RECO_RATE*i)
-        self._derivates[self.RECOVERED]= lambda s,i,r: self.RECO_RATE*i
+        self._derivates[self.SUSCEPTIBLE]= lambda s,i,r,d: -self.CONT_RATE*s*i
+        self._derivates[self.INFECTED]   = lambda s,i,r,d: (self.CONT_RATE*s*i)\
+             - (self.RECO_RATE*i) - (self.MORTALITY*i)
+            
+        self._derivates[self.RECOVERED]  = lambda s,i,r,d: self.RECO_RATE*i
+        self._derivates[self.DEAD]       = lambda s,i,r,d: self.MORTALITY*i
     
     def __eulerError(self, var_name, deriv):
         _error = 0.5 * (self.t_step**2) * deriv
@@ -159,18 +172,39 @@ class DiseaseSimulation(object):
             
             getattr(self, var_name).append(new[var_name])
             # Define the maximum
-            if ((var_name == self.INFECTED) 
-                and (step < 0) and (not self.max_infected)):
-                self.max_infected = (round(self.time[i],2), round(new[var_name]))
-                if self.STOP_WHEN_MAX_INFECTED_ACHIEVED:
-                    break
-        
+            if (var_name == self.INFECTED):
+                if (not self.max_infected):
+                    if (step < 0) and (self.infected[-1] > 1):
+                        self.max_infected = (round(self.time[i],2),
+                                             round(new[var_name]))
+                        if self.STOP_WHEN_MAX_INFECTED_ACHIEVED:
+                            print("STOPPED IN MAX_INFECTED")
+                            self._converged = True
+                            break
+                else:
+                    # If there is less than a person (after reaching the maximum
+                    # of infections), the disease has been eradicated.
+                    if (step < 0) and (getattr(self, self.INFECTED)[-1] < 1):
+                        print("CONVERGENCE ACHIEVED [step {}]".format(i))
+                        self._converged = True
+                        break
     
     def __call__(self):
         """ run the execution for the object inputs """
-        for i in range(self.N_steps-1):
-            self.__euler(i)
-                        
+        self._converged = False
+        iterations, ini_step = 1, 0
+        while not self._converged:
+            print(f"Iter {iterations}")
+            for i in range(ini_step, (iterations * self.N_steps)-1):
+                if self._converged: break
+                self.__euler(i)
+            if i >= self.TOP_N:
+                print("WARNING: MAX ITERATIONS reached, Convergence NOT ACHIEVED")
+                break
+            # Loop again if the process has not reached convergence
+            ini_step = self.N_steps * iterations
+            iterations += 1
+        
     
     GRAPH_LABEL = 0
     @classmethod
@@ -184,11 +218,11 @@ class DiseaseSimulation(object):
         infected is reached. Use it before the execution. """
         self.STOP_WHEN_MAX_INFECTED_ACHIEVED = stop
     
-    def graph(self, details=True, logY=False):
+    def graph(self, details=True, logY=False, grid=True):
         """ Graph the results using matplotlib, also prints the object inputs"""
         if details:
             print(self)
-        
+            
         import matplotlib.pyplot as plt
         #gn = f"Graph {self.GRAPH_LABEL}"
         self.graphLabelIncrement()
@@ -199,7 +233,8 @@ class DiseaseSimulation(object):
                     getattr(self, _var),
                     self.VAR_COLORS[_var],
                     label=_var)
-        
+        if grid:
+            ax.grid()
         ax.set_title("Time evolution of Disease\n", loc='center', fontsize=18)
         ax.set_title(f"CR={round(self.CONT_RATE*self.N_population, 4)}[1/pd] 1/RR={round(self.RECO_RATE**(-1), 2)} \
 [d] Max={self.max_infected}[(d, p)]", 

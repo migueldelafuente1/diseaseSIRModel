@@ -86,7 +86,9 @@ spain_detected = [
                   (32, 14769, 638),
                   (33, 18077, 831),
                   (34, 21571, 1093),
-                  (35, 25496, 1381)
+                  (35, 25496, 1381),
+                  (36, 28768, 1772),
+                  (37, 35136, 2311)
                   ]
 
 italy_detected = [
@@ -114,7 +116,9 @@ italy_detected = [
                   (32, 35713, 2978),
                   (33, 41035, 3405),
                   (34, 47021, 4032),
-                  (35, 53578, 4825)
+                  (35, 53578, 4825), 
+                  (36, 59138, 5476),
+                  (37, 63927, 6077)
                   ]
 
 
@@ -146,9 +150,9 @@ if __name__ == '__main__':
     ## INPUTS
     # =========================================================================
     
-    date_min = datetime(2020, 3, 1)        # lower bound of data range
-    date_max = datetime(2020, 3, 11)        # upper bound of data range
-    date_prediction = datetime(2020, 3, 12) # prediction
+    date_min = datetime(2020, 3, 17)        # lower bound of data range
+    date_max = datetime(2020, 3, 23)        # upper bound of data range
+    date_prediction = datetime(2020, 3, 24) # prediction
     
     # =========================================================================
     
