@@ -77,7 +77,8 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 
 ## optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
-### _stepOptimizer_ find the step necessary for the Euler-Method iteration to be in a relative tolerance range when the time step is split.
+### _stepOptimizer_ 
+finds the step necessary for the Euler-Method iteration to be in a relative tolerance range when the time step is split.
 
 This function iterates to find a value of the step for which the SIR simulation converges under a certain tolerance. The steps are divided by 2 in each iteration (for a maximum of h_max/2^-6).
 
