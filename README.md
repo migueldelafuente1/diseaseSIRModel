@@ -104,15 +104,14 @@ The most upgraded parameter sets and time step achieved.
 The start point of time will be set as the first day of the data to simplify some of the adjustments. 
 The process consists in:
 
-/*
-	1. Set up the first elements for t, infect, ... with the first data row.
-	2. Adapt the time step (stepOptimizer)
-	3. Calculate the difference between the data and the model(with time step optimized) in t_data time. For equations of 
-		1. Death &rarr; M
-		2. Recovered &rarr; RR
-		3. f(RR, M ,N, Infected) &rarr; CR 
-	4. Calculate the step for each parameter as a difference data normalized by the minimum(difference), and get a new value form the median for all data. See function `optimicers.paramStep()`.
-	5. check an arbitrary value of tolerance, return the parameters and t_step if it's exceeded.
-*/
+1. Set up the first elements for t, infect, ... with the first data row.
+2. Adapt the time step (stepOptimizer)
+3. Calculate the difference between the data and the model(with time step optimized) in t_data time. For equations of 
+	1. Death &rarr; M
+	2. Recovered &rarr; RR
+	3. f(RR, M ,N, Infected) &rarr; CR 
+4. Calculate the step for each parameter as a difference data normalized by the minimum(difference), and get a new value form the median for all data. See function `optimicers.paramStep()`.
+5. check an arbitrary value of tolerance, return the parameters and t_step if it's exceeded.
+
 
 After then, the the evolution of the results is given as well as a run with graph for the best approximation.
