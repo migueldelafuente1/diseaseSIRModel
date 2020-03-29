@@ -73,7 +73,7 @@ spain_detected = [
                   (17, 165, 1),
                   (19, 282, 3),
                   (21, 525, 10),
-                  (22, 674, 17),
+                  (22, 674, 17), # 8-3-20
                   (23, 1231, 30),
                   (24, 1695, 36),
                   (25, 2277, 55),
@@ -89,7 +89,11 @@ spain_detected = [
                   (35, 25496, 1381),
                   (36, 28768, 1772),
                   (37, 35136, 2311),
-                  (38, 42058, 2991)
+                  (38, 42058, 2991),
+                  (39, 49515, 3647), # 25-3-20
+                  (40, 57786, 4365),
+                  (41, 65719, 5138),
+                  (42, 73235, 5282)
                   ]
 
 italy_detected = [
@@ -111,59 +115,61 @@ italy_detected = [
                   (26, 15113, 1016),
                   (27, 17660, 1266),
                   (28, 21157, 1441),
-                  (29, 24747, 1809),  # 15-3-20
+                  (29, 24747, 1809), # 15-3-20
                   (30, 27980, 2158),
                   (31, 31506, 2503),
                   (32, 35713, 2978),
                   (33, 41035, 3405),
                   (34, 47021, 4032),
-                  (35, 53578, 4825), 
+                  (35, 53578, 4825),
                   (36, 59138, 5476),
                   (37, 63927, 6077),
-                  (38, 69176, 6820)
+                  (38, 69176, 6820),
+                  (39, 74386, 7503), # 25-3-20
+                  (40, 80589, 8215),
+                  (41, 86498, 9134),
+                  (42, 92472, 10023),
                   ]
 
 
-def graph(data_list, A_i, B_i, A_d, B_d, t_min, t_max, name):
+def graphDataAndFit(data_list, A_i, B_i, A_d, B_d, t_min, t_max, name):
     
     t, infected, dead = zip(*data_list)
+    dates_t = [(t_0+timedelta(days=t_min + t)).date() for t in range(len(t))]
     fig, ax = plt.subplots()
-    ax.plot(t, infected, 'r^-',label=f'{name} infected')
-    ax.plot(t, dead, 'kv-',label=f'{name} dead')
+    ax.plot(dates_t, infected, 'r^-',label=f'{name} infected')
+    ax.plot(dates_t, dead, 'kv-',label=f'{name} dead')
     
-    x_i, y_i = zip(*[(t, B_i* (10**(A_i*t)))
-                     for t in np.arange(t_min, t_max, 0.01)])
-    x_d, y_d = zip(*[(t, B_d* (10**(A_d*t))) 
-                     for t in np.arange(t_min, t_max, 0.01)])
+    x_i, y_i = zip(*[((t_0+timedelta(days=t)).date(), B_i* (10**(A_i*t)))
+                     for t in np.arange(t_min, t_max, 1.)])
+    x_d, y_d = zip(*[((t_0+timedelta(days=t)).date(), B_d* (10**(A_d*t))) 
+                     for t in np.arange(t_min, t_max, 1.)])
     ax.plot(x_i, y_i, 'r--',label=f'{name} infected')
     ax.plot(x_d, y_d, 'k--',label=f'{name} dead')
+    plt.xticks(rotation=30)
     ax.legend()
     ax.grid()
-    #ax.semilogy()
-    ax.set_xlabel('time (days)')
+    ax.semilogy()
+    ax.set_xlabel(f'time (days) from {(t_0+timedelta(days=t_min)).date()}={t_min} to {(t_0+timedelta(days=t_max)).date()}={t_max}')
 
-
-# =============================================================================
-#       MAIN RUN
-# =============================================================================
-
-if __name__ == '__main__':
-    
-    ## INPUTS
-    # =========================================================================
-    
-    date_min = datetime(2020, 3, 17)        # lower bound of data range
-    date_max = datetime(2020, 3, 25)        # upper bound of data range
-    date_prediction = datetime(2020, 3, 25) # prediction
-    
-    # =========================================================================
-    
+def getRatesForDateRanges(date_min, date_max, date_prediction=None, graph=True):
+    """
+    Main Function process here, get data range by dates, call the fitting 
+    function and plot and predict for the approximation.
+        Args:
+    :date_min :date_max :date_prediction(optional) are datetime objects 
+    :graph(=True) to graph selected data and trend.
+        Return:
+    dictionary (for each country) with a tuple:
+    the infection and death rate and also the average mortality for the period.
+    """
     t_min = (date_min - t_0).days
     t_max = (date_max - t_0).days
-    t_pred = (date_prediction - t_0).days
     
     dicts_ = {'spain': spain_detected, 
               'italy': italy_detected}
+    
+    constants = {}
     ## Set data in the range
     for name, detected_list in dicts_.items():
         i_min, i_max = None, 0
@@ -190,9 +196,92 @@ if __name__ == '__main__':
         print(f"Death  Rate: {d_rate:8.4f}   abscD: {d_y_abs:8.4f}")
         print(f"Mortality:  {mort:8.4f} +/- {mort_std:6.4f}")
         
-        _infected = round(i_y_abs * (10**(i_rate*t_pred)))
-        _deaths   = round(d_y_abs * (10**(d_rate*t_pred)))
-        print(f"\t{(t_0+timedelta(days=t_pred)).date()} : infected= {_infected}")
-        print(f"\t{(t_0+timedelta(days=t_pred)).date()} : death= {_deaths}\n")
+        constants[name] = (i_rate, d_rate, mort, mort_std)
         
-        graph(detected_list, i_rate, i_y_abs, d_rate, d_y_abs, t_min, t_max, name)
+        if date_prediction:
+            t_pred = (date_prediction - t_0).days
+            
+            _infected = round(i_y_abs * (10**(i_rate*t_pred)))
+            _deaths   = round(d_y_abs * (10**(d_rate*t_pred)))
+            print(f"\t{(t_0+timedelta(days=t_pred)).date()} : infected= {_infected}")
+            print(f"\t{(t_0+timedelta(days=t_pred)).date()} : death= {_deaths}\n")
+        if graph:
+            graphDataAndFit(detected_list, i_rate, i_y_abs, 
+                            d_rate, d_y_abs, t_min, t_max, name)
+    
+    return constants
+
+def graphRatesEvolution(window_infections, window_deaths, window_mortality,
+                        date_min, window_delta_days):
+    time = [date_min+timedelta(days=i) for i in range(len(window_infections))]
+    #time = [i for i in range(len(window_infections))]
+    
+    fig1, axs = plt.subplots(2)
+    fig1.suptitle(f'Results of fit for infectious and death rate. \n(+- {window_delta_days} days window)')
+    axs[0].plot(time, window_infections, 'o-r', label='infectious rate')
+    axs[1].plot(time, window_deaths, 'x-k', label='death rate')
+    axs[1].set_xlabel(f'time (days) from {date_min.date()}=0')
+    axs[0].set_title("Infection Rate")
+    axs[1].set_title("Death Rate")
+    
+    for tick in axs[0].get_xticklabels():
+        tick.set_rotation(15)
+    for tick in axs[1].get_xticklabels():
+        tick.set_rotation(15)
+    plt.legend(loc='lower right')
+    
+    fig2 = plt.figure()
+    fig2.suptitle('Mortality averaged.')
+    mort  = list(map(lambda x: x[1], window_mortality))
+    m_err = list(map(lambda x: x[1], window_mortality))
+    plt.errorbar(time, mort, yerr=m_err, label='mortality average')
+    plt.legend(loc='lower right')
+    plt.xticks(rotation=45)
+
+# =============================================================================
+#       MAIN RUN
+# =============================================================================
+from copy import copy
+if __name__ == '__main__':
+     
+    ## INPUTS
+    # =========================================================================
+     
+    date_min = datetime(2020, 3, 1)        # lower bound of data range
+    date_max = datetime(2020, 3, 28)        # upper bound of data range
+    date_prediction = datetime(2020, 3, 28) # prediction 
+    # =========================================================================
+    getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
+    
+    
+    #===========================================================================
+    #     ITERATION OF RANGE WITH delta_days WINDOW
+    #===========================================================================
+    date_min = datetime(2020, 3, 1)        # lower bound of data range
+    date_max = datetime(2020, 3, 28)        # upper bound of data range
+     
+    delta_days = 1 # window of days for the mean( 2*delta_days + 1) 
+    date_min_MIN = date_min + timedelta(days=delta_days)
+    date_max_MAX = date_max - timedelta(days=delta_days)
+     
+    window_mean_infections = []
+    window_mean_deaths = []
+    window_mean_mortality = []
+     
+    date_min = copy(date_min_MIN)
+    date_max = date_min + timedelta(days= 2*delta_days + 1)
+     
+    while(date_max <= date_max_MAX):
+        results = getRatesForDateRanges(date_min, date_max, graph=False)
+         
+        window_mean_infections.append(results['spain'][0])
+        window_mean_deaths.append(results['spain'][1])
+        window_mean_mortality.append(results['spain'][2:4])
+         
+        date_min = date_min + timedelta(days=1)
+        date_max = date_min + timedelta(days= 2*delta_days + 1)
+     
+    graphRatesEvolution(window_mean_infections, window_mean_deaths, 
+                        window_mean_mortality, date_min_MIN, delta_days)
+     
+     

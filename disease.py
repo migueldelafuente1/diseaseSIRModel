@@ -47,6 +47,7 @@ class DiseaseSimulation(object):
     INFECTEDS_COULD_DIE = False
     STOP_WHEN_MAX_INFECTED_ACHIEVED = False
     TOP_N = 1000000
+    PRINT = False
     
     # Initial Values.
     DAY_0 = 0
@@ -113,10 +114,11 @@ class DiseaseSimulation(object):
        days:     \t{self.days}\t [days]
        N_population:\t{self.N_population}\t [persons]
        
-       contagious rate:\t{self.CONT_RATE} [1/ persons day]
-       recovery rate:  \t{self.RECO_RATE} [1/ days]
+       contagious rate:\t{self.CONT_RATE*self.N_population:6.4f} [1/ persons day]
+       recovery rate:  \t{self.RECO_RATE:6.4f} [1/ days]
        
-       Considering People Die: {self.INFECTEDS_COULD_DIE}
+       Considering People Die: {self.INFECTEDS_COULD_DIE} 
+           Mortality: {self.MORTALITY*100:6.4f} %
        Considering [{self.GROUPS_OF_RECOVERY}] groups of recovey
        
   =================================================================
@@ -141,12 +143,19 @@ class DiseaseSimulation(object):
                      RECOVERED   : 'd_recovered',
                      DEAD        : 'd_dead'}
     
+    def _logPrint(self, *msgs):
+        if self.PRINT == True:
+            print(*msgs)
+            
     def getVariableTuple(self, i=-1):
         return tuple([getattr(self, var)[i] for var in self.VARS])
     
     def getResults(self):
-        """ Get all the set of results for other uses"""
-        return tuple([getattr(self, var) for var in self.VARS])
+        """ Get all the set of results for other uses:
+        list of tuples: (day, SUSCEPTIBLE, INFECTED, RECOVERED, DEAD)"""
+        if not self._converged:
+            self._logPrint("WARNING: DiseaseModel has not converged")
+        return zip(*([self.time] + [getattr(self, var) for var in self.VARS]))
     
     def __defineDerivates(self):
         
@@ -177,17 +186,17 @@ class DiseaseSimulation(object):
             if (var_name == self.INFECTED):
                 if (not self.max_infected):
                     if (step < 0) and (self.infected[-1] > self.INITIALIZERS['infected_0']):
-                        self.max_infected = (round(self.t_step * i, 2),
+                        self.max_infected = (round(self.DAY_0+self.t_step*i, 2),
                                              round(new[var_name]))
                         if self.STOP_WHEN_MAX_INFECTED_ACHIEVED:
-                            print("STOPPED IN MAX_INFECTED")
+                            self._logPrint("STOPPED IN MAX_INFECTED")
                             self._converged = True
                             
                 else:
                     # If there is less than a person (after reaching the maximum
                     # of infections), the disease has been eradicated.
                     if (step < 0) and (getattr(self, self.INFECTED)[-1] < 1):
-                        print("CONVERGENCE ACHIEVED [step {}]".format(i))
+                        self._logPrint("CONVERGENCE ACHIEVED [step {}]".format(i))
                         self._converged = True
                         
     
@@ -196,15 +205,15 @@ class DiseaseSimulation(object):
         self._converged = False
         iterations, ini_step = 1, 0
         while not self._converged:
-            print(f"Iter {iterations}")
+            self._logPrint(f"Iter {iterations}")
             for i in range(ini_step, (iterations * self.N_steps)-1):
                 if self._converged:
-                    self.time = np.arange(self.DAY_0, 
-                                          (i+1)*self.t_step, self.t_step)
+                    len_ = len(self.infected)
+                    self.time = [self.DAY_0+ j*self.t_step for j in range(len_)]
                     break
                 self.__euler(i)
             if i >= self.TOP_N:
-                print("WARNING: MAX ITERATIONS reached, Convergence NOT ACHIEVED")
+                self._logPrint("WARNING: MAX ITERATIONS reached, Convergence NOT ACHIEVED")
                 break
             # Loop again if the process has not reached convergence
             ini_step = self.N_steps * iterations
@@ -218,10 +227,11 @@ class DiseaseSimulation(object):
     def getDetails(self):
         print(self)
     
-    def stopWhenMaxInfectedReached(self, stop=True):
+    @classmethod
+    def stopWhenMaxInfectedReached(cls, stop=True):
         """ Call this method to set stop the execution when the maximum of 
         infected is reached. Use it before the execution. """
-        self.STOP_WHEN_MAX_INFECTED_ACHIEVED = stop
+        cls.STOP_WHEN_MAX_INFECTED_ACHIEVED = stop
     
     def graph(self, details=True, logY=False, grid=True):
         """ Graph the results using matplotlib, also prints the object inputs"""
@@ -251,5 +261,5 @@ class DiseaseSimulation(object):
         if logY:
             plt.semilogy()
         plt.show()
-        
-
+    
+            
