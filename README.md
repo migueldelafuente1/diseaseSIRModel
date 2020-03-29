@@ -18,7 +18,7 @@ python `3.6` or newer, `matplotlib` and `numpy`
 	pip3 install numpy
 
 # Parts:
-###fitData.py 
+##fitData.py 
 **fitData.py**  script has a time compilation from some online sources of _corona virus_ infected and deaths, for Italy and Spain. The module has a linear fitting function for base 10 logarithmic increase. The resultant constants are used to plot the perspectives for a certain day (counting from _2020-2-15_) and a plot of this linear trend for both countries.
 
 __Arguments__:
@@ -63,7 +63,7 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 (11075 if we do not round). As you see, we cannot naively assume estimations if these rates vary on time (It might needs a cumulative sum), but these rates gives an idea of its effect in the spread of the disease and the relation between two of them. The exact count  actually comes from a variation from the first rate and the second (in the mid way), which coincides with the activation of the cautionary actions of the government.
 
  
-###disease.py    
+##disease.py    
  **disease** module has the Disease Models. The models has the following parameters:
 
 | Parameter | Default | Units | Description |
@@ -75,7 +75,7 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 | recovery_rate | = 0.0 | 1/ day | inverse average time to overcome the disease and stop infecting others |
 | mortality | =0.0 |  | linear factor proportional to the infected |
 
-###optimizers.py
+##optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
 * _stepOptimizer_ find the step necessary for the Euler-Method iteration to be in a relative tolerance range when the time step is split.
 
