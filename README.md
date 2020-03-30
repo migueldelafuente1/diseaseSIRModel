@@ -65,7 +65,7 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 The fits can be run over all data making a local fit over a narrow window of days. In that case, we achieve a first approximation of the evolution of the rates, but its very sensitive to the window range and error is not given:
 
 ![alt text]
-(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow1.png "Trends over the days with a window of 1 day")
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow1.png "Trends over the days with a window of one day")
 
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "Trends over the days with a window of 2 day")
