@@ -114,5 +114,46 @@ The process consists in:
 4. Calculate the step for each parameter as a difference data normalized by the minimum(difference), and get a new value form the median for all data. See function `optimicers.paramStep()`.
 5. check an arbitrary value of tolerance, return the parameters and t_step if it's exceeded.
 
-
 After then, the the evolution of the results is given as well as a run with graph for the best approximation.
+__Example__
+Given these values for Madrid, lets run the program:
+
+| days (starting from 17=13-3-2020)| infected | recovered | dead |
+| --- | --- | --- | --- |
+|17 | 1990 | 1 (??) | 81 |
+|20 | 4165 | 474 | 255 |
+|23 | 6777 | 498 | 941 |
+|26 | 9702 | 1899 | 1022 |
+
+![alt text](https://github.com/migueldelafuente1/diseaseModel/blob/master/images/OptimizingRatesMadrid.png "Optimizing parameters Madrid")
+
+Under 60 iterations, the parameters result:
+	
+	=================================================================
+	   ***         DISEASE SIMULATION, SIR MODEL: INPUTS       ***
+	   -----------------------------------------------------------
+		   time step:       0.005    [days]
+		   days:            200      [days]
+		   N_population:    6550000  [persons]
+		   
+		   contagious rate: 0.2759 [1/ persons day]
+		   recovery rate:   0.0336 [1/ days]
+		   
+		   Considering People Die: True 
+		       Mortality: 2.2538 %
+		   Considering [1] groups of recovery
+	=================================================================
+
+The value of the mortality went half underestimated if compared with the estimation in Spain (see below results of fitData.py for the same period), the value of contagious rate is quite overestimated (3.6 times the empirical value). The recovery rate (the inverse) fit quite well with the average value of recovery: oftenly 2 weeks, 3-6 week when complications. (`1/0.0336=29.8 days = 4.25 weeks`)
+ 
+	SPAIN   data from [2020-03-17] to [2020-03-26]
+	-----------------------------------------
+	Infect Rate:   0.0759   abscI:  54.9212
+	Death  Rate:   0.1075   abscD:   0.2393
+	Mortality:    0.0568 +/- 0.0109
+	        2020-03-28 : infected= 84633.0
+	        2020-03-28 : death= 7833.0
+
+The result for the model is:
+![alt text]
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/ResultOptimizationMadrid.png "(Unreliable) Evolution of Covid in Madrid")
