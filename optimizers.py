@@ -85,9 +85,9 @@ def modelOptimizerFromData(N_population,
     <tuple> The most upgraded parameter sets and time step achieved
     """
     
-    #TODO: Many variables could be grouped, avoiding single purpose definitions
-    #TODO: Refactor in simple functions, excessive extension and cumbersome
-    #TODO: Generalize the model for a general number of recoveries
+    # TODO: Many variables could be grouped, avoiding single purpose definitions
+    # TODO: Refactor in simple functions, excessive extension and cumbersome
+    # TODO: Generalize the model for a general number of recoveries
     
     aux_params = {**parameters0,
                   't_step': h_max,

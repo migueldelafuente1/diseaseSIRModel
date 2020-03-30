@@ -62,7 +62,14 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 
 (11075 if we do not round). As you see, we cannot naively assume estimations if these rates vary on time (It might needs a cumulative sum), but these rates gives an idea of its effect in the spread of the disease and the relation between two of them. The exact count  actually comes from a variation from the first rate and the second (in the mid way), which coincides with the activation of the cautionary actions of the government.
 
- 
+The fits can be run over all data making a local fit over a narrow window of days. In that case, we achieve a first approximation of the evolution of the rates, but its very sensitive to the window range and error is not given:
+
+![alt text]
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow1.png "Trends over the days with a window of +- 1 day (3 days)")
+
+![alt text]
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "Trends over the days with a window of +- 2 day (5 days)")
+
 ## disease.py    
  **disease** module has the Disease Models. The models has the following parameters:
 
@@ -74,6 +81,17 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 | contagious_rate | = 0.0 | 1/ day * persons | average number of contacts between people for a person per day times the probability of infection per contact |
 | recovery_rate | = 0.0 | 1/ day | inverse average time to overcome the disease and stop infecting others |
 | mortality | =0.0 |  | linear factor proportional to the infected |
+
+These are some examples for a population of 2e+5 people, for a disease with a contagious rate of 1.25, a 4% mortality, and recovery rates (inverse) = 2.1, 6.1, 18.1 days. The images show also when the peak occurs and how many will be infected.
+
+![alt text]
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1/r = 2.1 example")
+
+![alt text]
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1/r = 6.1 example")
+
+![alt text]
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1/r = 18.1 example")
 
 ## optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
@@ -127,7 +145,7 @@ Given these values for Madrid, lets run the program:
 
 ![alt text](https://github.com/migueldelafuente1/diseaseModel/blob/master/images/OptimizingRatesMadrid.png "Optimizing parameters Madrid")
 
-Under 60 iterations, the parameters result:
+After 60 iterations, the parameters result:
 	
 	=================================================================
 	   ***         DISEASE SIMULATION, SIR MODEL: INPUTS       ***
@@ -144,7 +162,7 @@ Under 60 iterations, the parameters result:
 		   Considering [1] groups of recovery
 	=================================================================
 
-The value of the mortality went half underestimated if compared with the estimation in Spain (see below results of fitData.py for the same period), the value of contagious rate is quite overestimated (3.6 times the empirical value). The recovery rate (the inverse) fit quite well with the average value of recovery: oftenly 2 weeks, 3-6 week when complications. (`1/0.0336=29.8 days = 4.25 weeks`)
+The value of the mortality went half underestimated if compared with the estimation in Spain (see below results of fitData.py for the same period), the value of contagious rate is quite overestimated (3.6 times the empirical value). The recovery rate (the inverse) fit quite well with the average value of recovery: oftenly 2 weeks, 3-6 week when complications. (`1/0.0336 = 29.8 days = 4.25 weeks`)
  
 	SPAIN   data from [2020-03-17] to [2020-03-26]
 	-----------------------------------------
@@ -155,5 +173,8 @@ The value of the mortality went half underestimated if compared with the estimat
 	        2020-03-28 : death= 7833.0
 
 The result for the model is:
+
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/ResultOptimizationMadrid.png "(Unreliable) Evolution of Covid in Madrid")
+
+As we can see, if we use 4 static (and independent) parameters, the prediction is quite apocalyptic and not reliable. In reality, these parameters depends on the system and vary with the time, specially the contagious rate, which is dependent on the number of contacts (drastically reduced with the generalized quarantine).

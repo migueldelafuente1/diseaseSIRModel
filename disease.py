@@ -46,8 +46,8 @@ class DiseaseSimulation(object):
     GROUPS_OF_RECOVERY = 1
     INFECTEDS_COULD_DIE = False
     STOP_WHEN_MAX_INFECTED_ACHIEVED = False
-    TOP_N = 1000000
-    PRINT = False
+    TOP_N = 500000
+    PRINT = True
     
     # Initial Values.
     DAY_0 = 0
@@ -119,7 +119,7 @@ class DiseaseSimulation(object):
        
        Considering People Die: {self.INFECTEDS_COULD_DIE} 
            Mortality: {self.MORTALITY*100:6.4f} %
-       Considering [{self.GROUPS_OF_RECOVERY}] groups of recovey
+       Considering [{self.GROUPS_OF_RECOVERY}] groups of recovery
        
   =================================================================
 """
@@ -214,6 +214,8 @@ class DiseaseSimulation(object):
                 self.__euler(i)
             if i >= self.TOP_N:
                 self._logPrint("WARNING: MAX ITERATIONS reached, Convergence NOT ACHIEVED")
+                self.time = [self.DAY_0+ j*self.t_step 
+                             for j in range(len(self.infected))]
                 break
             # Loop again if the process has not reached convergence
             ini_step = self.N_steps * iterations

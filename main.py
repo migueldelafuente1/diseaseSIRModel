@@ -12,7 +12,7 @@ from optimizers import stepOptimizer, modelOptimizerFromData
 
 if __name__ == '__main__':
     #===========================================================================
-    # BASIC RANGE
+    # BASIC RANGES AND EXAMPLES
     #===========================================================================
     ## Let be the parameters: (contagious_rate, recovery_rate) [1/day*people]
     params = [(0.265, 0.05), (2.5, 10.)]
@@ -36,9 +36,18 @@ if __name__ == '__main__':
     #===========================================================================
     # OPTIMIZATION OF STEP FOR FIXED PARAMETERS (Example)
     #===========================================================================
-    params = {'contagious_rate': 1.25, 'recovery_rate': 1/14, 'days': 200}
-    maximum_values = stepOptimizer(0.01, tolerance=0.0005, **params)
-
+    params = {'N_population': 6550000,
+              'contagious_rate': 0.2759, 
+              'recovery_rate': 0.0336, 
+              'mortality_rate': 0.0268, 
+              'days': 500,
+              't_step': 0.01}
+    DiseaseSimulation.setInitializers(day_0=17, infected_0=1990, 
+                                      dead_0=81, recovered_0=1)
+    #maximum_values = stepOptimizer(0.01, tolerance=0.005, **params)
+    model = DiseaseSimulation(**params)
+    model()
+    model.graph(grid=True)
     #===========================================================================
     # CALIBRATION FOR MADRID
     #===========================================================================

@@ -249,8 +249,8 @@ if __name__ == '__main__':
     ## INPUTS
     # =========================================================================
      
-    date_min = datetime(2020, 3, 1)        # lower bound of data range
-    date_max = datetime(2020, 3, 28)        # upper bound of data range
+    date_min = datetime(2020, 3, 17)        # lower bound of data range
+    date_max = datetime(2020, 3, 26)        # upper bound of data range
     date_prediction = datetime(2020, 3, 28) # prediction 
     # =========================================================================
     getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
@@ -259,29 +259,29 @@ if __name__ == '__main__':
     #===========================================================================
     #     ITERATION OF RANGE WITH delta_days WINDOW
     #===========================================================================
-    date_min = datetime(2020, 3, 1)        # lower bound of data range
-    date_max = datetime(2020, 3, 28)        # upper bound of data range
-     
-    delta_days = 1 # window of days for the mean( 2*delta_days + 1) 
-    date_min_MIN = date_min + timedelta(days=delta_days)
-    date_max_MAX = date_max - timedelta(days=delta_days)
-     
-    window_mean_infections = []
-    window_mean_deaths = []
-    window_mean_mortality = []
-     
-    date_min = copy(date_min_MIN)
-    date_max = date_min + timedelta(days= 2*delta_days + 1)
-     
-    while(date_max <= date_max_MAX):
-        results = getRatesForDateRanges(date_min, date_max, graph=False)
-         
-        window_mean_infections.append(results['spain'][0])
-        window_mean_deaths.append(results['spain'][1])
-        window_mean_mortality.append(results['spain'][2:4])
-         
-        date_min = date_min + timedelta(days=1)
-        date_max = date_min + timedelta(days= 2*delta_days + 1)
-     
-    graphRatesEvolution(window_mean_infections, window_mean_deaths, 
-                        window_mean_mortality, date_min_MIN, delta_days)
+#    date_min = datetime(2020, 3, 1)        # lower bound of data range
+#    date_max = datetime(2020, 3, 28)        # upper bound of data range
+#     
+#    delta_days = 1 # window of days for the mean( 2*delta_days + 1) 
+#    date_min_MIN = date_min + timedelta(days=delta_days)
+#    date_max_MAX = date_max - timedelta(days=delta_days)
+#     
+#    window_mean_infections = []
+#    window_mean_deaths = []
+#    window_mean_mortality = []
+#     
+#    date_min = copy(date_min_MIN)
+#    date_max = date_min + timedelta(days= 2*delta_days + 1)
+#     
+#    while(date_max <= date_max_MAX):
+#        results = getRatesForDateRanges(date_min, date_max, graph=False)
+#         
+#        window_mean_infections.append(results['spain'][0])
+#        window_mean_deaths.append(results['spain'][1])
+#        window_mean_mortality.append(results['spain'][2:4])
+#         
+#        date_min = date_min + timedelta(days=1)
+#        date_max = date_min + timedelta(days= 2*delta_days + 1)
+#     
+#    graphRatesEvolution(window_mean_infections, window_mean_deaths, 
+#                        window_mean_mortality, date_min_MIN, delta_days)
