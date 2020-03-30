@@ -65,10 +65,10 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 The fits can be run over all data making a local fit over a narrow window of days. In that case, we achieve a first approximation of the evolution of the rates, but its very sensitive to the window range and error is not given:
 
 ![alt text]
-(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow1.png "Trends over the days with a window of +- 1 day (3 days)")
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow1.png "Trends over the days with a window of 1 day")
 
 ![alt text]
-(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "Trends over the days with a window of +- 2 day (5 days)")
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "Trends over the days with a window of 2 day")
 
 ## disease.py    
  **disease** module has the Disease Models. The models has the following parameters:
@@ -85,13 +85,13 @@ The fits can be run over all data making a local fit over a narrow window of day
 These are some examples for a population of 2e+5 people, for a disease with a contagious rate of 1.25, a 4% mortality, and recovery rates (inverse) = 2.1, 6.1, 18.1 days. The images show also when the peak occurs and how many will be infected.
 
 ![alt text]
-(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1/r = 2.1 example")
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1 over r eq 2 example")
 
 ![alt text]
-(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1/r = 6.1 example")
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1 over r eq 6 example")
 
 ![alt text]
-(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1/r = 18.1 example")
+(https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1 over r eq 18 example")
 
 ## optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
