@@ -25,14 +25,14 @@ def getContagiousRate(detected_list):
     x = np.vstack([np.array(t), np.ones(len(t))]).T
     infected = list(map(lambda i: np.log10(i), infected))
     dead     = list(map(lambda d: np.log10(d+0.1), dead))
-
+    
     A_i, B_i = np.linalg.lstsq(x, infected, rcond=None)[0]
     A_d, B_d = np.linalg.lstsq(x, dead, rcond=None)[0]
     
     mortality = list(map(lambda vals: vals[2]/vals[1], detected_list))
     return (
         round(A_i, 4), round(10**(B_i), 4),
-        round(A_d, 4), round(10**(B_d), 4), 
+        round(A_d, 4), round(10**(B_d), 4),
         np.mean(mortality), np.std(mortality))
 
 
@@ -93,7 +93,8 @@ spain_detected = [
                   (39, 49515, 3647), # 25-3-20
                   (40, 57786, 4365),
                   (41, 65719, 5138),
-                  (42, 73235, 5282)
+                  (42, 73235, 5282),
+                  (43, 80110, 6803)
                   ]
 
 italy_detected = [
@@ -129,6 +130,7 @@ italy_detected = [
                   (40, 80589, 8215),
                   (41, 86498, 9134),
                   (42, 92472, 10023),
+                  (43, 97689, 10779)
                   ]
 
 
@@ -213,8 +215,8 @@ def getRatesForDateRanges(date_min, date_max, date_prediction=None, graph=True):
 
 def graphRatesEvolution(window_infections, window_deaths, window_mortality,
                         date_min, window_delta_days):
-    time = [date_min+timedelta(days=i) for i in range(len(window_infections))]
-    #time = [i for i in range(len(window_infections))]
+    #time = [date_min+timedelta(days=i) for i in range(len(window_infections))]
+    time = [i for i in range(len(window_infections))]
     
     fig1, axs = plt.subplots(2)
     fig1.suptitle(f'Results of fit for infectious and death rate. \n(+- {window_delta_days} days window)')
@@ -243,7 +245,7 @@ def graphRatesEvolution(window_infections, window_deaths, window_mortality,
 # =============================================================================
 from copy import copy
 if __name__ == '__main__':
-     
+    
     ## INPUTS
     # =========================================================================
      
@@ -283,5 +285,3 @@ if __name__ == '__main__':
      
     graphRatesEvolution(window_mean_infections, window_mean_deaths, 
                         window_mean_mortality, date_min_MIN, delta_days)
-     
-     
