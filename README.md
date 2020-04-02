@@ -16,6 +16,8 @@ python `3.6` or newer, `matplotlib` and `numpy`
 
 	pip3 install matplotlib
 	pip3 install numpy
+	
+There is an optional module that requires the libraries `BeautifulSoup` and `selenium` and also [download the chromedriver](https://chromedriver.chromium.org/downloads); also, it requires to change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. If you don't want to use this feature, skip these complementary installations.
 
 # Parts:
 ## fitData.py
@@ -70,6 +72,28 @@ The fits can be run over all data making a local fit over a narrow window of day
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "Trends over the days with a window of 2 day")
 
+### worldometers scraper.
+
+Refresh data manually is tedious, so there is a _scraper bot_ (`dataWebLoader`) that loads the web page for any available country in the web automatically. The values could also be saved and reloaded if you have download the data for that day.
+
+The module requires `BeautifulSoup`, `selenium` and a `chromedriver`; also, it requires to change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. If you don't want to use this feature, skip these complementary installations.
+
+The usage is shown below, and then the prediction is made as before:
+
+~~~~~~~~~~~~~{.py}
+	from dataWebLoader import DataWebLoader
+    
+    countries = ['spain', 'italy', 'us']
+    data = DataWebLoader.getData(countries, save=True)
+    #data = DataWebLoader.loadJsonData() # (uncomment if data has been saved)
+    
+    for country, tables in data.items():
+        processWebData(country, tables)
+    
+    ## Prediction:
+    getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
+~~~~~~~~~~~~~
+  
 ## disease.py    
  **disease** module has the Disease Models. The models has the following parameters:
 
