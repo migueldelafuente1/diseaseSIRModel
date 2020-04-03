@@ -69,8 +69,12 @@ The fits can be run over all data making a local fit over a narrow window of day
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow1.png "Trends over the days with a window of one day")
 
+<img src="images/EvolutionOfRatesWindow1.png" width="800" /> ![](images/EvolutionOfRatesWindow1.png)
+
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "Trends over the days with a window of 2 day")
+
+<img src="images/EvolutionOfRatesWindow2.png" width="800" /> ![](images/EvolutionOfRatesWindow2.png)
 
 ### worldometers scraper.
 
@@ -111,11 +115,17 @@ These are some examples for a population of 2e+5 people, for a disease with a co
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1 over r eq 2 example")
 
+<img src="images/Example1.png" width="800" /> ![](images/Example1.png)
+
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1 over r eq 6 example")
 
+<img src="images/Example2.png" width="800" /> ![](images/Example2.png)
+
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/EvolutionOfRatesWindow2.png "1 over r eq 18 example")
+
+<img src="images/Example3.png" width="800" /> ![](images/Example3.png)
 
 ## optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
@@ -200,5 +210,7 @@ The result for the model is:
 
 ![alt text]
 (https://github.com/migueldelafuente1/diseaseModel/blob/master/images/ResultOptimizationMadrid.png "(Unreliable) Evolution of Covid in Madrid")
+
+<img src="images/ResultOptimizationMadrid.png" width="800" /> ![](images/ResultOptimizationMadrid.png)
 
 As we can see, if we use 4 static (and independent) parameters, the prediction is quite apocalyptic and not reliable. In reality, these parameters depends on the system and vary with the time, specially the contagious rate, which is dependent on the number of contacts (drastically reduced with the generalized quarantine).
