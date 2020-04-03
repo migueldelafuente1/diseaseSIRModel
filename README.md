@@ -21,6 +21,8 @@ We can predict the maximum value of _infected_ population in the model by integr
 
 The model could also be extended to take into account different rates of recovery, contagious and to insert mortality or other relations.
 
+As we will see, the model have many flaws due its simplicity, but it has been used to understand many actions against the spread and the evolution of a contagious disease. Also, as a disclaimer, many of the statistics on the data are simple averages and easy fittings, so the conclusions are merely heuristic, more advanced analysis is required to get a reliable values of the actual situation.  
+
 # Requirements:
 
 python `3.6` or newer, `matplotlib` and `numpy`
@@ -207,20 +209,24 @@ Given these values for Madrid, lets run the program:
 
 After 60 iterations, the parameters result:
 	
-	=================================================================
-	   ***         DISEASE SIMULATION, SIR MODEL: INPUTS       ***
-	   -----------------------------------------------------------
-		   time step:       0.005    [days]
-		   days:            200      [days]
-		   N_population:    6550000  [persons]
-		   
-		   contagious rate: 0.2759 [1/ persons day]
-		   recovery rate:   0.0336 [1/ days]
-		   
-		   Considering People Die: True 
-		       Mortality: 2.2538 %
-		   Considering [1] groups of recovery
-	=================================================================
+  =================================================================
+    ***         DISEASE SIMULATION, SIR MODEL: INPUTS       ***
+    -----------------------------------------------------------
+       time step:       0.005    [days]
+       days:            200      [days]
+       N_population:    6550000  [persons]
+       
+       contagious rate: 0.2760 [1/ persons day]
+       recovery rate:   0.0337 [1/ days]
+       
+       Considering People Die: True 
+           Mortality: 2.2538 %
+       Considering [1] groups of recovery
+       
+       R0: 4.9112        R_effective: 4.9096
+       Analytical Max Infections: 3094055
+       
+  =================================================================
 
 The value of the mortality went half underestimated if compared with the estimation in Spain (see below results of fitData.py for the same period), the value of contagious rate is quite overestimated (3.6 times the empirical value). The recovery rate (the inverse) fit quite well with the average value of recovery: oftenly 2 weeks, 3-6 week when complications. (`1/0.0336 = 29.8 days = 4.25 weeks`)
  
@@ -232,7 +238,7 @@ The value of the mortality went half underestimated if compared with the estimat
 	        2020-03-28 : infected= 84633.0
 	        2020-03-28 : death= 7833.0
 
-The result for the model is:
+The result for the model gives a maximum of 3092553 infected on the 61_th_ day:
 
 <img src="images/ResultOptimizationMadrid.png" width="700" />
 
