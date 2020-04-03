@@ -66,9 +66,9 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 
 The fits can be run over all data making a local fit over a narrow window of days. In that case, we achieve a first approximation of the evolution of the rates, but its very sensitive to the window range and error is not given:
 
-<img src="images/EvolutionOfRatesWindow1.png" width="400" />
+<img src="images/EvolutionOfRatesWindow1.png" width="600" />
 
-<img src="images/EvolutionOfRatesWindow2.png" width="400" /> 
+<img src="images/EvolutionOfRatesWindow2.png" width="600" /> 
 
 ### worldometers scraper.
 
@@ -106,11 +106,11 @@ The usage is shown below, and then the prediction is made as before:
 
 These are some examples for a population of 2e+5 people, for a disease with a contagious rate of 1.25, a 4% mortality, and recovery rates (inverse) = 2.1, 6.1, 18.1 days. The images show also when the peak occurs and how many will be infected.
 
-<img src="images/Example1.png" width="400" />
+<img src="images/Example1.png" width="600" />
 
-<img src="images/Example2.png" width="400" />
+<img src="images/Example2.png" width="600" />
 
-<img src="images/Example3.png" width="400" />
+<img src="images/Example3.png" width="600" />
 
 ## optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
@@ -162,7 +162,7 @@ Given these values for Madrid, lets run the program:
 |23 | 6777 | 498 | 941 |
 |26 | 9702 | 1899 | 1022 |
 
-<img src="images/OptimizingRatesMadrid.png" width="500" />
+<img src="images/OptimizingRatesMadrid.png" width="600" />
 
 After 60 iterations, the parameters result:
 	
@@ -193,6 +193,6 @@ The value of the mortality went half underestimated if compared with the estimat
 
 The result for the model is:
 
-<img src="images/ResultOptimizationMadrid.png" width="400" />
+<img src="images/ResultOptimizationMadrid.png" width="600" />
 
 As we can see, if we use 4 static (and independent) parameters, the prediction is quite apocalyptic and not reliable. In reality, these parameters depends on the system and vary with the time, specially the contagious rate, which is dependent on the number of contacts (drastically reduced with the generalized quarantine).
