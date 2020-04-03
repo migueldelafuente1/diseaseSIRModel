@@ -67,7 +67,7 @@ def paramStep(data_t, model_t, param_value):
     step = param_value * (data_t - model_t) / (max(data_t, model_t)**1.2)
     return param_value + step
 
-MAX_STEP = 60
+MAX_STEP = 50
 
 def modelOptimizerFromData(N_population, 
                            parameters0, 
@@ -99,6 +99,7 @@ def modelOptimizerFromData(N_population,
     # Set up the first elements for t, infect, ... with the first data row
     DiseaseSimulation.setInitializers(**iniArgs)
     DiseaseSimulation.stopWhenMaxInfectedReached(True)
+    DiseaseSimulation.setLogsPrint(False)
     
     dataTolAchieved = [dict([(key, False) for key in parameters0])
                        for _ in data]
@@ -181,6 +182,8 @@ def graphEvolutionAndResultantModel(evolutionParams, finalParams):
     #===========================================================================
     #     PRINT MODEL WITH RESULTS
     #===========================================================================
+    DiseaseSimulation.setLogsPrint(True)
     model = DiseaseSimulation(**finalParams)
     model()
+    print(model)
     model.graph()

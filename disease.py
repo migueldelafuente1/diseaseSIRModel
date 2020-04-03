@@ -83,10 +83,14 @@ class DiseaseSimulation(object):
         self.dead        = [self.INITIALIZERS['dead_0']]
         self._setCalculationVars()
         
-        self.CONT_RATE = contagious_rate/N_population
+        self.CONT_FACTOR = contagious_rate  # Dimensionless Transmissibility
+        self.CONT_RATE = contagious_rate/N_population # Rate for the calculations
         self.RECO_RATE = recovery_rate
         self.MORTALITY = mortality_rate
         self.INFECTEDS_COULD_DIE = mortality_rate > 0.0 
+        
+        self.R_0 = self.CONT_FACTOR / (self.RECO_RATE + self.MORTALITY)
+        self.R_effective = self.R_0 * self.susceptible[0] / self.N_population
         
         self.max_infected = None
         self.__defineDerivates()
@@ -121,6 +125,9 @@ class DiseaseSimulation(object):
            Mortality: {self.MORTALITY*100:6.4f} %
        Considering [{self.GROUPS_OF_RECOVERY}] groups of recovery
        
+       R0: {self.R_0:6.4f} \t R_effective: {self.R_effective:6.4f}
+       Analytical Max Infections: {int(self.analyticalValueOfMaximumInfected())}
+       
   =================================================================
 """
     # =========================================================================
@@ -143,6 +150,11 @@ class DiseaseSimulation(object):
                      RECOVERED   : 'd_recovered',
                      DEAD        : 'd_dead'}
     
+    @classmethod
+    def setLogsPrint(cls, bool_value):
+        assert bool_value in (True, False), "PRINT is boolean, got '{}'".format(bool_value)
+        cls.PRINT = bool_value
+        
     def _logPrint(self, *msgs):
         if self.PRINT == True:
             print(*msgs)
@@ -234,9 +246,15 @@ class DiseaseSimulation(object):
         """ Call this method to set stop the execution when the maximum of 
         infected is reached. Use it before the execution. """
         cls.STOP_WHEN_MAX_INFECTED_ACHIEVED = stop
+       
+    def analyticalValueOfMaximumInfected(self):
+        """ Analytic value for the maximum infected population for the model. """
+        _C = self.N_population / self.R_0
+        return self.susceptible[0] + self.infected[0]\
+            - (_C * (1 + np.log(self.susceptible[0] / _C)))
     
     def graph(self, details=True, logY=False, grid=True):
-        """ Graph the results using matplotlib, also prints the object inputs"""
+        """ Graph the results using matplotlib, also prints the object inputs. """
         if details:
             print(self)
             

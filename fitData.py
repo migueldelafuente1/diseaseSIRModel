@@ -9,7 +9,8 @@ Created on 18 mar. 2020
 # =============================================================================
 from datetime import datetime, timedelta 
 import numpy as np
-import matplotlib.pyplot as plt
+from dataWebLoader import DataWebLoader
+from copy import copy, deepcopy
 
 def getContagiousRate(detected_list):
     """ 
@@ -21,7 +22,12 @@ def getContagiousRate(detected_list):
         with exponential Slope + origin for infected,
         with exponential Slope + origin for deaths
         with the mortality and its stdv"""
-    t, infected, dead, active = zip(*detected_list)
+    tuple_ = list(zip(*detected_list))
+    if len(tuple_) == 3:
+        t, infected, dead = tuple_
+    elif len(tuple_) == 4:
+        t, infected, dead, active = tuple_
+        
     x = np.vstack([np.array(t), np.ones(len(t))]).T
     infected = list(map(lambda i: np.log10(i), infected))
     dead     = list(map(lambda d: np.log10(d+0.1), dead))
@@ -118,8 +124,14 @@ COUNTRIES_DATA = {'spain': spain_detected,
                   'italy': italy_detected}
 
 def graphDataAndFit(data_list, A_i, B_i, A_d, B_d, t_min, t_max, name):
+    import matplotlib.pyplot as plt
     
-    t, infected, dead, active = zip(*data_list)
+    tuple_ = list(zip(*data_list))
+    if len(tuple_) == 3:
+        t, infected, dead = tuple_
+    elif len(tuple_) == 4:
+        t, infected, dead, active = tuple_
+        
     dates_t = [(t_0+timedelta(days=t_min + t)).date() for t in range(len(t))]
     fig, ax = plt.subplots()
     ax.plot(dates_t, infected, 'r^-',label=f'{name} infected')
@@ -151,7 +163,7 @@ def getRatesForDateRanges(date_min, date_max, date_prediction=None, graph=True):
     t_min = (date_min - t_0).days
     t_max = (date_max - t_0).days
     
-    dicts_ = COUNTRIES_DATA
+    dicts_ = deepcopy(COUNTRIES_DATA)
     
     constants = {}
     ## Set data in the range
@@ -166,9 +178,13 @@ def getRatesForDateRanges(date_min, date_max, date_prediction=None, graph=True):
                 i_max = i
                 break
         print(f"{name} -> i_min[{i_min}]  i_max[{i_max}]")
+        if i_min is None:
+            return {}
         dicts_[name] = detected_list[max(0, i_min) : min(i_max, len(detected_list))]
 
     for name, detected_list in dicts_.items():
+        if detected_list == []:
+            continue
         print(name.upper()
                 +"   data from [{}] to [{}]".format(
                         date_min.strftime("%Y-%m-%d"),
@@ -197,6 +213,7 @@ def getRatesForDateRanges(date_min, date_max, date_prediction=None, graph=True):
 
 def graphRatesEvolution(window_infections, window_deaths, window_mortality,
                         date_min, window_delta_days):
+    import matplotlib.pyplot as plt
     #time = [date_min+timedelta(days=i) for i in range(len(window_infections))]
     time = [i for i in range(len(window_infections))]
     
@@ -224,6 +241,9 @@ def graphRatesEvolution(window_infections, window_deaths, window_mortality,
 
 def processWebData(country, data_dict):
     # keys from dataWebLoader.GRAPHS
+    if country == DataWebLoader.TIMESTAMP:
+        return None
+    
     dates, totalInf = data_dict['Total Cases']
     _, totalDeaths  = data_dict['Total Deaths']
     _, totalActive  = data_dict['Active Cases']
@@ -231,6 +251,32 @@ def processWebData(country, data_dict):
     days = [(date - t_0.date()).days for date in dates]
     
     COUNTRIES_DATA[country] = list(zip(days, totalInf, totalDeaths, totalActive))
+
+def graphTotalVsActiveCases(t_min, t_max, logXaxis=True):
+    """ Graph logarithmically the total cases against the currently active cases
+    Requires execute processWebData since theere is no active register locally 
+    """
+    import matplotlib.pyplot as plt
+    
+    fig, ax = plt.subplots()
+    
+    for country, data_list in COUNTRIES_DATA.items():
+        t, infected, dead, active = zip(*data_list)
+        _color = np.random.rand(3,)
+        ax.plot(infected, active, '.-', c=_color ,label=f'{country}', alpha=0.5)
+        ax.plot(infected[-1], active[-1], marker='P',c=_color, mec='k', ms=7)
+    
+    ax.legend()
+    ax.grid()
+    plt.suptitle("Total Vs Active Cases Evolution", fontsize=12)
+    plt.title(f'data from {t_min.date()} to {t_max.date()}')
+    if logXaxis:
+        ax.semilogx()
+    ax.semilogy()
+    ax.set_xlim(10, None)
+    ax.set_ylim(10, None)
+    ax.set_xlabel('Total Cases')
+    ax.set_ylabel('Active Cases')
 
 # =============================================================================
 #       MAIN RUN
@@ -241,11 +287,11 @@ if __name__ == '__main__':
     ## INPUTS
     # =========================================================================
      
-    date_min = datetime(2020, 3, 17)        # lower bound of data range
-    date_max = datetime(2020, 4, 2)        # upper bound of data range
-    date_prediction = datetime(2020, 4, 3) # prediction 
+    date_min = datetime(2020, 3, 1)        # lower bound of data range
+    date_max = datetime.now()               # upper bound of data range
+    date_prediction = (datetime.now() + timedelta(days=1)) # prediction 
     # =========================================================================
-    getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
+#     getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
     
     #===========================================================================
     #     LOAD DATA FROM WEB
@@ -253,44 +299,59 @@ if __name__ == '__main__':
     
     from dataWebLoader import DataWebLoader
     
-    countries = ['spain', 'italy', 'germany', 'us', 'uk']
+    countries = ['spain', 'italy', 'germany', 'us', 'uk', 'south-korea']
+    
     data = DataWebLoader.getData(countries, save=True)
-    #data = DataWebLoader.loadJsonData()
     
     for country, tables in data.items():
         processWebData(country, tables)
     
     getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
     
+    ## TOTAL CASES VS ACTIVE CASES GRAPH
+    #---------------------------------------------------------------------------
+    graphTotalVsActiveCases(date_min, date_max)
+    
     #===========================================================================
     #     ITERATION OF RANGE WITH delta_days WINDOW (uncomment)
     #===========================================================================
-#     from copy import copy
-#    date_min = datetime(2020, 3, 1)        # lower bound of data range
+#
+#    date_min = datetime(2020, 3, 1)         # lower bound of data range
 #    date_max = datetime(2020, 3, 28)        # upper bound of data range
-#     
+#    
+#    countries = ['spain', 'italy']
+#    
+#    data = DataWebLoader.getData(countries, save=True)
+#    for country, tables in data.items():
+#        processWebData(country, tables)
+#        
 #    delta_days = 1 # window of days for the mean( 2*delta_days + 1) 
 #    date_min_MIN = date_min + timedelta(days=delta_days)
 #    date_max_MAX = date_max - timedelta(days=delta_days)
-#     
-#    window_mean_infections = []
-#    window_mean_deaths = []
-#    window_mean_mortality = []
-#     
-#    date_min = copy(date_min_MIN)
-#    date_max = date_min + timedelta(days= 2*delta_days + 1)
-#     
-#    while(date_max <= date_max_MAX):
-#        results = getRatesForDateRanges(date_min, date_max, graph=False)
+#    
+#    for  country in countries:
+#        window_mean_infections = []
+#        window_mean_deaths = []
+#        window_mean_mortality = []
 #         
-#        window_mean_infections.append(results['spain'][0])
-#        window_mean_deaths.append(results['spain'][1])
-#        window_mean_mortality.append(results['spain'][2:4])
-#         
-#        date_min = date_min + timedelta(days=1)
+#        date_min = copy(date_min_MIN)
 #        date_max = date_min + timedelta(days= 2*delta_days + 1)
-#     
-#    graphRatesEvolution(window_mean_infections, window_mean_deaths, 
-#                        window_mean_mortality, date_min_MIN, delta_days)
-
-    
+#        
+#        while(date_max <= date_max_MAX):
+#            results = getRatesForDateRanges(date_min, date_max, graph=False)
+#            
+#            date_min = date_min + timedelta(days=1)
+#            date_max = date_min + timedelta(days= 2*delta_days + 1)
+#            
+#            if not results:
+#                continue
+#            window_mean_infections.append(results[country][0])
+#            window_mean_deaths.append(results[country][1])
+#            window_mean_mortality.append(results[country][2:4])
+#            
+#        
+#        if window_mean_infections and window_mean_deaths and window_mean_mortality:
+#            graphRatesEvolution(window_mean_infections, window_mean_deaths, 
+#                                window_mean_mortality, date_min_MIN, delta_days)
+#            
+#    

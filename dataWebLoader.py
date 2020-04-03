@@ -5,6 +5,7 @@ Created on 31 mar. 2020
 '''
 
 import re
+import os
 from datetime import datetime, date
 from copy import deepcopy
 import json
@@ -33,17 +34,24 @@ class DataWebLoader(object):
     CHROMIUM_PATH = "C:\\Users\\Miguel\\Anaconda3\\Lib\\chromedriver.exe"
     URL = "https://www.worldometers.info/coronavirus/country/{}/"
     JSON_PATH = "data.json"
+    TIMESTAMP = "DOWNLOADED TIMESTAMP"
     
     @staticmethod
-    def getData(countries='spain', save=False):
+    def getData(countries='spain', save=False, download_anyway=False):
         """
         Args: 
         :countries <str> or list <str>, for the country names in the web
             (spain, italy, us, germany, uk ... see the web).
+        :download_anyway <bool> download from the web whenever you have already 
+            download the data that day or not.
         Return:
         :coutry data (dict) with the data for each table in tuples:
             (datetime.date list, int list)
         """
+        # avoid unnecessary downloads
+        if (not download_anyway) and DataWebLoader.__loadValuesJson(countries):
+            return DataWebLoader.loadJsonData()
+            
         from selenium import webdriver
 
         driver = webdriver.Chrome(DataWebLoader.CHROMIUM_PATH)
@@ -129,10 +137,30 @@ class DataWebLoader(object):
                 dates = [date.strftime("%Y %m %d") for date in dates]
                 
                 resultDict[country][name] = (dates, vals)
-                
+        
+        resultDict[DataWebLoader.TIMESTAMP] = datetime.now().strftime("%Y %m %d : %H")
         with open(DataWebLoader.JSON_PATH, 'w') as json_file:
             json.dump(resultDict, json_file)
             
+    @staticmethod
+    def __loadValuesJson(countries):
+        """ Return False if there is not a file with the default name or if it 
+        is one, it was saved within the last 4 hours."""
+        if not os.path.exists(DataWebLoader.JSON_PATH):
+            return False
+        
+        with open(DataWebLoader.JSON_PATH) as json_file:
+            resultDict = json.load(json_file)
+        
+        if False in [country in resultDict.keys() for country in countries]:
+            return False
+        if DataWebLoader.TIMESTAMP in resultDict:
+            download_ts = datetime.strptime(resultDict[DataWebLoader.TIMESTAMP], 
+                                            "%Y %m %d : %H")
+            if (datetime.now() - download_ts).seconds < 14400:
+                return True
+        return False
+    
     @staticmethod
     def loadJsonData(fileName=''):
         """ Load data from a previously saved json, give the fileName if it
@@ -141,8 +169,10 @@ class DataWebLoader(object):
         fileName = fileName if fileName else DataWebLoader.JSON_PATH
         with open(fileName) as json_file:
             resultDict = json.load(json_file)
-            
-        # convert datetime object in str date
+        
+        if DataWebLoader.TIMESTAMP in resultDict:
+            del resultDict[DataWebLoader.TIMESTAMP]
+        # convert datetime object in string date
         for country, tables in resultDict.items():
             for name, table in tables.items():
                 dates, vals = table
