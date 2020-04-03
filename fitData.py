@@ -291,7 +291,7 @@ if __name__ == '__main__':
     date_max = datetime.now()               # upper bound of data range
     date_prediction = (datetime.now() + timedelta(days=1)) # prediction 
     # =========================================================================
-#     getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
+    getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
     
     #===========================================================================
     #     LOAD DATA FROM WEB
@@ -315,43 +315,43 @@ if __name__ == '__main__':
     #===========================================================================
     #     ITERATION OF RANGE WITH delta_days WINDOW (uncomment)
     #===========================================================================
-#
-#    date_min = datetime(2020, 3, 1)         # lower bound of data range
-#    date_max = datetime(2020, 3, 28)        # upper bound of data range
-#    
-#    countries = ['spain', 'italy']
-#    
-#    data = DataWebLoader.getData(countries, save=True)
-#    for country, tables in data.items():
-#        processWebData(country, tables)
-#        
-#    delta_days = 1 # window of days for the mean( 2*delta_days + 1) 
-#    date_min_MIN = date_min + timedelta(days=delta_days)
-#    date_max_MAX = date_max - timedelta(days=delta_days)
-#    
-#    for  country in countries:
-#        window_mean_infections = []
-#        window_mean_deaths = []
-#        window_mean_mortality = []
-#         
-#        date_min = copy(date_min_MIN)
-#        date_max = date_min + timedelta(days= 2*delta_days + 1)
-#        
-#        while(date_max <= date_max_MAX):
-#            results = getRatesForDateRanges(date_min, date_max, graph=False)
-#            
-#            date_min = date_min + timedelta(days=1)
-#            date_max = date_min + timedelta(days= 2*delta_days + 1)
-#            
-#            if not results:
-#                continue
-#            window_mean_infections.append(results[country][0])
-#            window_mean_deaths.append(results[country][1])
-#            window_mean_mortality.append(results[country][2:4])
-#            
-#        
-#        if window_mean_infections and window_mean_deaths and window_mean_mortality:
-#            graphRatesEvolution(window_mean_infections, window_mean_deaths, 
-#                                window_mean_mortality, date_min_MIN, delta_days)
-#            
-#    
+
+    date_min = datetime(2020, 3, 1)         # lower bound of data range
+    date_max = datetime(2020, 3, 28)        # upper bound of data range
+    
+    countries = ['spain', 'italy']
+    
+    data = DataWebLoader.getData(countries, save=True)
+    for country, tables in data.items():
+        processWebData(country, tables)
+        
+    delta_days = 1 # window of days for the mean( 2*delta_days + 1) 
+    date_min_MIN = date_min + timedelta(days=delta_days)
+    date_max_MAX = date_max - timedelta(days=delta_days)
+    
+    for  country in countries:
+        window_mean_infections = []
+        window_mean_deaths = []
+        window_mean_mortality = []
+         
+        date_min = copy(date_min_MIN)
+        date_max = date_min + timedelta(days= 2*delta_days + 1)
+        
+        while(date_max <= date_max_MAX):
+            results = getRatesForDateRanges(date_min, date_max, graph=False)
+            
+            date_min = date_min + timedelta(days=1)
+            date_max = date_min + timedelta(days= 2*delta_days + 1)
+            
+            if not results:
+                continue
+            window_mean_infections.append(results[country][0])
+            window_mean_deaths.append(results[country][1])
+            window_mean_mortality.append(results[country][2:4])
+            
+        
+        if window_mean_infections and window_mean_deaths and window_mean_mortality:
+            graphRatesEvolution(window_mean_infections, window_mean_deaths, 
+                                window_mean_mortality, date_min_MIN, delta_days)
+            
+    

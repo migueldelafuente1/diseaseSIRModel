@@ -94,7 +94,6 @@ The usage is shown below, and then the prediction is made as before:
     
     countries = ['spain', 'italy', 'us']
     data = DataWebLoader.getData(countries, save=True)
-    #data = DataWebLoader.loadJsonData() # (uncomment if data has been saved)
     
     for country, tables in data.items():
         processWebData(country, tables)
@@ -102,7 +101,8 @@ The usage is shown below, and then the prediction is made as before:
     ## Prediction:
     getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
 ~~~~~~~~~~~~~
-  
+The scrapper donesn't download contents as default if there is a saved download in the last 4 hours or if there are no new countries asked. Local loadings have to be done with the `loadJsonData()` method.
+
 We can see, heuristically, the actual state of the evolution of the epidemic, this data could present the total detected cases of covid 19 against the actual active cases. The recession of the active cases is shown when the trend goes to the left right value. This idea was token from _minutephysics_ video and its [web project](https://aatishb.com/covidtrends/)
 
 <img src="images/EvolutionOfCovid.png" width="700" />
@@ -145,7 +145,13 @@ With these results:
 
 <img src="images/Example3.png" width="700" />
 
-We can check the values for the maximum of infected populations with method `<obj>.analyticalValueOfMaximumInfected`, and 
+We can check the values for the maximum of infected populations with method `<obj>.analyticalValueOfMaximumInfected`, and there is a very good correspondence between these values (in fact, it can be used as a benchmark to choose the time step, instead of selecting it according to numerical convergence).
+
+|Image| Numerical value (day, infected_max)| Analytical maximum |
+| --- | --- | --- |
+|1st |(4.25, 48480) | 48554.59 |
+|2nd |(4.51, 109556) | 109815.68 |
+|3th |(4.85, 145835) | 146233.08 |
 
 ## optimizers.py
 **optimizers** has some functions to find the best parameters for the calculations.
