@@ -2,12 +2,13 @@
 1. [SIR Model Introduction](#introduction)
 2. [Requirements](#requirements)
 3. [Modules Use](#parts)
-*. [Data Fitter for exponential trends](#fitData)
-*. [Loading data with worldometers scraper](#scraper)
-*. [SIR Model Program](#disease model)
-*. [Parameter optimizers](#optimizers)
-  1. [time step Optimizer](#step opt)
-  2. [model Optimizer From Data](#model opt)
+
+* [Data Fitter for exponential trends](#fitData)
+* [Loading data with worldometers scraper](#scraper)
+* [SIR Model Program](#diseasemodel)
+* [Parameter optimizers](#optimizers)
+  1. [time step Optimizer](#stepopt)
+  2. [model Optimizer From Data](#modelopt)
 
 # SIR Model Introduction <a name="introduction"></a>
 Model of infection based on SIR model, given by this EDO system:
@@ -44,19 +45,19 @@ python `3.6` or newer, `matplotlib` and `numpy`
 There is an optional module that requires the libraries `BeautifulSoup` and `selenium` and also [download the chromedriver](https://chromedriver.chromium.org/downloads); also, it requires to change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. If you don't want to use this feature, skip these complementary installations.
 
 # Parts: <a name="parts"></a>
-There
+
 # Data Fitter for exponential trends <a name="fitData"></a>
 **fitData.py**  script has a time compilation from some online sources of _corona virus_ infected and deaths, for Italy and Spain. The module has a linear fitting function for base 10 logarithmic increase. The resultant constants are used to plot the perspectives for a certain day (counting from _2020-2-15_) and a plot of this linear trend for both countries.
 
 __Arguments__:
 
-~~~~~~~~~~~~~{.py}
-    ## INPUTS
-    
-    date_min = datetime(2020, 3, 5)         # lower bound of data range
-    date_max = datetime(2020, 3, 11)        # upper bound of data range
-    date_prediction = datetime(2020, 3, 12) # prediction
-~~~~~~~~~~~~~
+```python
+## INPUTS
+
+date_min = datetime(2020, 3, 5)         # lower bound of data range
+date_max = datetime(2020, 3, 11)        # upper bound of data range
+date_prediction = datetime(2020, 3, 12) # prediction
+```
     
 The output depends on the date range:
 
@@ -103,25 +104,26 @@ The module requires `BeautifulSoup`, `selenium` and a `chromedriver`; also, it r
 
 The usage is shown below, and then the prediction is made as before:
 
-~~~~~~~~~~~~~{.py}
-    from dataWebLoader import DataWebLoader
-    
-    countries = ['spain', 'italy', 'us']
-    data = DataWebLoader.getData(countries, save=True)
-    
-    for country, tables in data.items():
-        processWebData(country, tables)
-    
-    ## Prediction:
-    getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
-~~~~~~~~~~~~~
+```python
+from dataWebLoader import DataWebLoader
+
+countries = ['spain', 'italy', 'us']
+data = DataWebLoader.getData(countries, save=True)
+
+for country, tables in data.items():
+    processWebData(country, tables)
+
+## Prediction:
+getRatesForDateRanges(date_min, date_max, date_prediction, graph=True)
+```
+
 The scrapper donesn't download contents as default if there is a saved download in the last 4 hours or if there are no new countries asked. Local loadings have to be done with the `loadJsonData()` method.
 
 We can see, heuristically, the actual state of the evolution of the epidemic, this data could present the total detected cases of covid 19 against the actual active cases. The recession of the active cases is shown when the trend goes to the left right value. This idea was token from _minutephysics_ video and its [web project](https://aatishb.com/covidtrends/)
 
 <img src="images/EvolutionOfCovid.png" width="700" />
 
-# SIR Model Program <a name="disease model"></a>
+# SIR Model Program <a name="diseasemodel"></a>
  **disease.py** module has the Disease Models. The models has the following parameters:
 
 | Parameter | Default | Units | Description |
@@ -135,21 +137,21 @@ We can see, heuristically, the actual state of the evolution of the epidemic, th
 
 These are some examples for a population of 2e+5 people, for a disease with a contagious rate of 1.25, a 4% mortality, and recovery rates (inverse) = 2.1, 6.1, 18.1 days. The images show also when the peak occurs and how many will be infected.
 
-~~~~~~~~~~~~~{.py}
-    params_c_const = [(1.25, 1./(2.1 + 4.*c)) for c in range(0, 6)]
-    DiseaseSimulation.setInitializers(infected_0=10000, dead_0=2, recovered_0=80)
-    for param in params_c_const:
-        ds = DiseaseSimulation(contagious_rate=param[0], 
-                               recovery_rate=param[1],
-                               t_step=0.01,
-                               mortality_rate=0.04
-                               )
-        max_infected_analytical = ds.analyticalValueOfMaximumInfected()
-        ds()
-        ds.graph(details=False)
-        ds.getDetails()
-        print(f"{ds.CONT_RATE}\t{ds.RECO_RATE}\t{ds.max_infected}\t({max_infected_analytical})")
-~~~~~~~~~~~~~
+```python
+params_c_const = [(1.25, 1./(2.1 + 4.*c)) for c in range(0, 6)]
+DiseaseSimulation.setInitializers(infected_0=10000, dead_0=2, recovered_0=80)
+for param in params_c_const:
+    ds = DiseaseSimulation(contagious_rate=param[0], 
+                           recovery_rate=param[1],
+                           t_step=0.01,
+                           mortality_rate=0.04
+                           )
+    max_infected_analytical = ds.analyticalValueOfMaximumInfected()
+    ds()
+    ds.graph(details=False)
+    ds.getDetails()
+    print(f"{ds.CONT_RATE}\t{ds.RECO_RATE}\t{ds.max_infected}\t({max_infected_analytical})")
+```
 
 With these results:
 
@@ -169,7 +171,7 @@ We can check the values for the maximum of infected populations with method `<ob
 
 # Parameter optimizers <a name="optimizers"></a>
 **optimizers.py** has some functions to find the best parameters for the calculations.
-## _stepOptimizer_ <a name="step opt"></a> 
+## _stepOptimizer_ <a name="stepopt"></a> 
 finds the step necessary for the Euler-Method iteration to be in a relative tolerance range when the time step is split.
 
 This function iterates to find a value of the step for which the SIR simulation converges under a certain tolerance. The steps are divided by 2 in each iteration (for a maximum of h_max/2^-6).
@@ -180,7 +182,7 @@ This function iterates to find a value of the step for which the SIR simulation 
 | __tolerance__ | double |(=0.2 by default), tolerance ratio on step (1.0 for 100%).|
 | __diseaseKwargs__ |Dictionary | The parameters for the DiseaseSimulation. |
 
-## _modelOptimizerFromData_ <a name="model opt"></a>
+## _modelOptimizerFromData_ <a name="modelopt"></a>
 From a set of data, find the best parameters (optimize time step in each iteration).
 
 | Argument | type | Description |
@@ -221,24 +223,24 @@ Given these values for Madrid, lets run the program:
 
 After 60 iterations, the parameters result:
 	
-  =================================================================
-    ***         DISEASE SIMULATION, SIR MODEL: INPUTS       ***
-    -----------------------------------------------------------
-       time step:       0.005    [days]
-       days:            200      [days]
-       N_population:    6550000  [persons]
-       
-       contagious rate: 0.2760 [1/ persons day]
-       recovery rate:   0.0337 [1/ days]
-       
-       Considering People Die: True 
-           Mortality: 2.2538 %
-       Considering [1] groups of recovery
-       
-       R0: 4.9112        R_effective: 4.9096
-       Analytical Max Infections: 3094055
-       
-  =================================================================
+	  =================================================================
+	    ***         DISEASE SIMULATION, SIR MODEL: INPUTS       ***
+	    -----------------------------------------------------------
+	       time step:       0.005    [days]
+	       days:            200      [days]
+	       N_population:    6550000  [persons]
+	       
+		   contagious rate: 0.2760 [1/ persons day]
+		   recovery rate:   0.0337 [1/ days]
+		   
+		   Considering People Die: True 
+		       Mortality: 2.2538 %
+		   Considering [1] groups of recovery
+		   
+		   R0: 4.9112        R_effective: 4.9096
+		   Analytical Max Infections: 3094055
+	   
+	  =================================================================
 
 The value of the mortality went half underestimated if compared with the estimation in Spain (see below results of fitData.py for the same period), the value of contagious rate is quite overestimated (3.6 times the empirical value). The recovery rate (the inverse) fit quite well with the average value of recovery: oftenly 2 weeks, 3-6 week when complications. (`1/0.0336 = 29.8 days = 4.25 weeks`)
  
