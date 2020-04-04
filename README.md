@@ -1,4 +1,15 @@
-# disease Model
+# Table of contents
+1. [SIR Model Introduction](#introduction)
+2. [Requirements](#requirements)
+3. [Modules Use](#parts)
+*. [Data Fitter for exponential trends](#fitData)
+*. [Loading data with worldometers scraper](#scraper)
+*. [SIR Model Program](#disease model)
+*. [Parameter optimizers](#optimizers)
+  1. [time step Optimizer](#step opt)
+  2. [model Optimizer From Data](#model opt)
+
+# SIR Model Introduction <a name="introduction"></a>
 Model of infection based on SIR model, given by this EDO system:
 	
 	ds/dt = -CONT_RATE*s*i/N_population
@@ -23,7 +34,7 @@ The model could also be extended to take into account different rates of recover
 
 As we will see, the model have many flaws due its simplicity, but it has been used to understand many actions against the spread and the evolution of a contagious disease. Also, as a disclaimer, many of the statistics on the data are simple averages and easy fittings, so the conclusions are merely heuristic, more advanced analysis is required to get a reliable values of the actual situation.  
 
-# Requirements:
+# Requirements: <a name="requirements"></a>
 
 python `3.6` or newer, `matplotlib` and `numpy`
 
@@ -32,8 +43,9 @@ python `3.6` or newer, `matplotlib` and `numpy`
 	
 There is an optional module that requires the libraries `BeautifulSoup` and `selenium` and also [download the chromedriver](https://chromedriver.chromium.org/downloads); also, it requires to change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. If you don't want to use this feature, skip these complementary installations.
 
-# Parts:
-## fitData.py
+# Parts: <a name="parts"></a>
+There
+# Data Fitter for exponential trends <a name="fitData"></a>
 **fitData.py**  script has a time compilation from some online sources of _corona virus_ infected and deaths, for Italy and Spain. The module has a linear fitting function for base 10 logarithmic increase. The resultant constants are used to plot the perspectives for a certain day (counting from _2020-2-15_) and a plot of this linear trend for both countries.
 
 __Arguments__:
@@ -77,13 +89,13 @@ For example, in Spain, the average over a window of 2 days gives a local rate of
 
 (11075 if we do not round). As you see, we cannot naively assume estimations if these rates vary on time (It might needs a cumulative sum), but these rates gives an idea of its effect in the spread of the disease and the relation between two of them. The exact count  actually comes from a variation from the first rate and the second (in the mid way), which coincides with the activation of the cautionary actions of the government.
 
-The fits can be run over all data making a local fit over a narrow window of days. In that case, we achieve a first approximation of the evolution of the rates, but its **very sensitive to the window range** and error is not given:
+The fits can be run over all data making a local fit over a narrow window of days. In that case, we achieve a first approximation of the evolution of the rates, but its **very sensitive to the window range** and the statistical deviations are not given:
 
 <img src="images/EvolutionOfRatesWindow1.png" width="700" />
 
 <img src="images/EvolutionOfRatesWindow2.png" width="700" /> 
 
-### worldometers scraper.
+# Loading data with worldometers scraper. <a name="scraper"></a>
 
 Refresh data manually is tedious, so there is a _scraper bot_ (`dataWebLoader`) that loads the web page for any available country in the web automatically. The values could also be saved and reloaded if you have download the data for that day.
 
@@ -109,8 +121,8 @@ We can see, heuristically, the actual state of the evolution of the epidemic, th
 
 <img src="images/EvolutionOfCovid.png" width="700" />
 
-## disease.py    
- **disease** module has the Disease Models. The models has the following parameters:
+# SIR Model Program <a name="disease model"></a>
+ **disease.py** module has the Disease Models. The models has the following parameters:
 
 | Parameter | Default | Units | Description |
 | --- | --- | --- | --- |
@@ -155,9 +167,9 @@ We can check the values for the maximum of infected populations with method `<ob
 |2nd |(4.51, 109556) | 109815.68 |
 |3th |(4.85, 145835) | 146233.08 |
 
-## optimizers.py
-**optimizers** has some functions to find the best parameters for the calculations.
-### _stepOptimizer_ 
+# Parameter optimizers <a name="optimizers"></a>
+**optimizers.py** has some functions to find the best parameters for the calculations.
+## _stepOptimizer_ <a name="step opt"></a> 
 finds the step necessary for the Euler-Method iteration to be in a relative tolerance range when the time step is split.
 
 This function iterates to find a value of the step for which the SIR simulation converges under a certain tolerance. The steps are divided by 2 in each iteration (for a maximum of h_max/2^-6).
@@ -168,7 +180,7 @@ This function iterates to find a value of the step for which the SIR simulation 
 | __tolerance__ | double |(=0.2 by default), tolerance ratio on step (1.0 for 100%).|
 | __diseaseKwargs__ |Dictionary | The parameters for the DiseaseSimulation. |
 
-### _modelOptimizerFromData_
+## _modelOptimizerFromData_ <a name="model opt"></a>
 From a set of data, find the best parameters (optimize time step in each iteration).
 
 | Argument | type | Description |
