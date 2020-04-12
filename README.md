@@ -46,9 +46,9 @@ There is an optional module for data downloading that requires the libraries `Be
 
 	pip3 install beautifulsoup4
 	
-__Deprecated__: _Selenium web driver_
+__Deprecated__: 
 
- are no longer necessary to be download, since they are replaced by `requests` (more efficient); This way need the download of `selenium` and [download the chromedriver](https://chromedriver.chromium.org/downloads) and also change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. 
+_Selenium_ and the _web driver_ are no longer necessary to be download, since they are replaced by `requests` (more efficient); This way need the download of `selenium` and [download the chromedriver](https://chromedriver.chromium.org/downloads) and also change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. 
 
 # Parts: <a name="parts"></a>
 
