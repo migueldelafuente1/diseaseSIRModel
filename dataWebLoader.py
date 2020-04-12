@@ -37,8 +37,9 @@ class DataWebLoader(object):
     TIMESTAMP = "DOWNLOADED TIMESTAMP"
     
     @staticmethod
-    def getData(countries='spain', save=False, download_anyway=False):
+    def getDataScrapper(countries='spain', save=False, download_anyway=False):
         """
+        WARNING: DEPRECATED -> use getData() instead
         Args: 
         :countries <str> or list <str>, for the country names in the web
             (spain, italy, us, germany, uk ... see the web).
@@ -58,7 +59,8 @@ class DataWebLoader(object):
         
         resultDict = {}
         countries = countries if isinstance(countries, list) else list(countries)
-        print(" Data Scrapper Started --------------------------------------------------------")
+        print(" Data Scrapper Started ",
+              "--------------------------------------------------------")
         for country in countries:
             driver.get(DataWebLoader.URL.format(country))
         
@@ -71,17 +73,57 @@ class DataWebLoader(object):
             DataWebLoader.save(resultDict)
             
         driver.close() 
-        print(" Data Scrapper Closed ---------------------------------------------------------")
+        print(" Data Scrapper Closed ",
+              "---------------------------------------------------------")
         return resultDict
     
+    @staticmethod
+    def getData(countries='spain', save=False, download_anyway=False):
+        """
+        Args: 
+        :countries <str> or list <str>, for the country names in the web
+            (spain, italy, us, germany, uk ... see the web).
+        :download_anyway <bool> download from the web whenever you have already 
+            download the data that day or not.
+        Return:
+        :coutry data (dict) with the data for each table in tuples:
+            (datetime.date list, int list)
+        """
+        # avoid unnecessary downloads
+        if (not download_anyway) and DataWebLoader.__loadValuesJson(countries):
+            return DataWebLoader.loadJsonData()
+            
+        import requests
+        
+        resultDict = {}
+        countries = countries if isinstance(countries, list) else list(countries)
+        print(" Data Download Started ",
+              "--------------------------------------------------------")
+        for country in countries:
+            response = requests.get(DataWebLoader.URL.format(country))
+            if not response.ok:
+                print("Error while connecting to {}: exit with status code {}/{}"
+                      .format(response.url, response.status_code, response.reason))
+                continue
+            print("processing data from: ", response.url)
+            dict_values = DataWebLoader.__loadHtmlAndProcess(response.text)
+            
+            resultDict[country] = dict_values
+        
+        if save:
+            DataWebLoader.save(resultDict)
+            
+        print(" Data has been Downloaded ",
+              "---------------------------------------------------------")
+        return resultDict
     @staticmethod
     def __loadHtmlAndProcess(page_source):
         """ Load the page with selenium and get the data tags, which are in the 
         javascripts for the charts. """
         from bs4 import BeautifulSoup
         
-        html_source = page_source
-        bs = BeautifulSoup(html_source, features='html5lib')
+        bs = BeautifulSoup(page_source, features='html5lib')
+        
         matchs = bs.find_all('script')
         html_dict = {}
         

@@ -15,13 +15,13 @@ if __name__ == '__main__':
     # BASIC RANGES AND EXAMPLES
     #===========================================================================
     ## Let be the parameters: (contagious_rate, recovery_rate) [1/day*people]
-    params = [(0.265, 0.05), (2.5, 10.)]
-    params_r_const = [(0.1 + 0.3*r, 20.) for r in range(5)]
+    params = [(0.265, 0.05), (2.5, 1/10.)]
+    params_r_const = [(0.1 + 0.3*r, 1/20.) for r in range(5)]
     params_c_const = [(1.25, 1./(2.1 + 4.*c)) for c in range(0, 6)]
     
     print("CR\tRR\tmax_infected")
     DiseaseSimulation.setInitializers(infected_0=10000, dead_0=2, recovered_0=80)
-    for param in params_c_const:
+    for param in params_r_const:
         ds = DiseaseSimulation(contagious_rate=param[0], 
                                recovery_rate=param[1],
                                t_step=0.005,
@@ -41,13 +41,14 @@ if __name__ == '__main__':
               'recovery_rate': 0.0336, 
               'mortality_rate': 0.0268, 
               'days': 500,
-              't_step': 0.01}
+              't_step': 0.005}
     DiseaseSimulation.setInitializers(day_0=17, infected_0=1990, 
                                       dead_0=81, recovered_0=1)
     #maximum_values = stepOptimizer(0.01, tolerance=0.005, **params)
     model = DiseaseSimulation(**params)
     model()
     model.graph(grid=True)
+    
     #===========================================================================
     # CALIBRATION FOR MADRID
     #===========================================================================
@@ -63,8 +64,3 @@ if __name__ == '__main__':
     params = modelOptimizerFromData(N_Population, params, data, h_max=0.01, 
                                     h_tolerance=0.05, data_tolerance=0.05)
     print(params)
-    
-        
-    
-    
-    

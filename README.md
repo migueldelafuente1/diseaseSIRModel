@@ -41,8 +41,13 @@ python `3.6` or newer, `matplotlib` and `numpy`
 
 	pip3 install matplotlib
 	pip3 install numpy
+
+There is an optional module for data downloading that requires the libraries `BeautifulSoup` and `requests`. If you don't want to use this feature, skip these complementary installations.
+
+	pip3 install beautifulsoup4
 	
-There is an optional module that requires the libraries `BeautifulSoup` and `selenium` and also [download the chromedriver](https://chromedriver.chromium.org/downloads); also, it requires to change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. If you don't want to use this feature, skip these complementary installations.
+_Deprecated: Selenium web driver_
+ are no longer necessary to be download, since they are replaced by `requests` (more efficient); This way need the download of `selenium` and [download the chromedriver](https://chromedriver.chromium.org/downloads) and also change the path of the driver in the class attribute `DataWebLoader.CHROMIUM_PATH` to its path in your computer. 
 
 # Parts: <a name="parts"></a>
 
